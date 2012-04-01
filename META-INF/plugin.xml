@@ -13,7 +13,7 @@
       - Browse with [CTRL]&[ALT]&[UP]/[DOWN] (note: on default-keymap this shortcut is also for next/previous occurrence).<br>
       - PasteReplace with [ALT]&[V].
     ]]></description>
-    <vendor url="http://code.google.com/p/browsewordatcaret/">Minas Manthos</vendor>
+    <vendor url="http://code.google.com/p/browsewordatcaret">Minas Manthos</vendor>
     <idea-version since-build="93.13"/>
     <depends>com.intellij.modules.lang</depends>
     <change-notes><![CDATA[
