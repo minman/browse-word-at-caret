@@ -25,7 +25,6 @@ import java.awt.*;
 public class BWACApplicationComponent implements ApplicationComponent, Configurable, EditorFactoryListener, JDOMExternalizable {
     private Map<Editor, BWACEditorComponent> editorComponents;
     private BWACConfigurationForm configurationForm;
-    protected Icon BWACIcon = IconLoader.getIcon("/browsewordatcaret/BWACIcon.png");
 
     public static final boolean defaultPrefShowMarkup = true;
     public static final Color defaultPrefColorMarkup = new Color(82, 109, 165);
@@ -108,7 +107,7 @@ public class BWACApplicationComponent implements ApplicationComponent, Configura
     }
 
     public Icon getIcon() {
-        return BWACIcon;
+        return null;
     }
 
     public String getHelpTopic() {
