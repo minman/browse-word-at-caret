@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2005 Minas Manthos, mailto:minas@manthos.ch
  */
-package ch.manthos.idea.plugin.browsewordatcaret;
+package browsewordatcaret;
 
 import javax.swing.*;
 import java.awt.*;

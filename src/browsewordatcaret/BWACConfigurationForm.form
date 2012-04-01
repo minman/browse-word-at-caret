@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="ch.manthos.idea.plugin.browsewordatcaret.BWACConfigurationForm">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="browsewordatcaret.BWACConfigurationForm">
   <grid id="1d175" binding="mainPanel" row-count="5" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="4" left="4" bottom="12" right="4"/>
     <constraints>

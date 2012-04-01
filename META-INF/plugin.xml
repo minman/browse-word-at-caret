@@ -40,24 +40,24 @@
     <idea-version since-build="3000"/>
     <application-components>
       <component>
-        <implementation-class>ch.manthos.idea.plugin.browsewordatcaret.BWACApplicationComponent</implementation-class>
+        <implementation-class>browsewordatcaret.BWACApplicationComponent</implementation-class>
       </component>
     </application-components>
     <actions>
         <action id="BrowseWordAtCaretPlugin.Next"
-                class="ch.manthos.idea.plugin.browsewordatcaret.BWACActionBrowseNext"
+                class="browsewordatcaret.BWACActionBrowseNext"
                 text="Browse to next word"
                 description="Browse to next word at caret.">
             <keyboard-shortcut first-keystroke="control alt DOWN" keymap="$default"/>
         </action>
         <action id="BrowseWordAtCaretPlugin.Previous"
-                class="ch.manthos.idea.plugin.browsewordatcaret.BWACActionBrowsePrevious"
+                class="browsewordatcaret.BWACActionBrowsePrevious"
                 text="Browse to previous word"
                 description="Browse to previous word at caret.">
             <keyboard-shortcut first-keystroke="control alt UP" keymap="$default"/>
         </action>
         <action id="BrowseWordAtCaretPlugin.PasteReplace"
-                class="ch.manthos.idea.plugin.browsewordatcaret.BWACActionPasteReplace"
+                class="browsewordatcaret.BWACActionPasteReplace"
                 text="Paste replacing word"
                 description="Paste replacing word at caret.">
             <keyboard-shortcut first-keystroke="alt V" keymap="$default"/>

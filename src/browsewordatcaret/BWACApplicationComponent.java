@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2005 Minas Manthos, mailto:minas@manthos.ch
  */
-package ch.manthos.idea.plugin.browsewordatcaret;
+package browsewordatcaret;
 
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.editor.Editor;
@@ -25,7 +25,7 @@ import java.awt.*;
 public class BWACApplicationComponent implements ApplicationComponent, Configurable, EditorFactoryListener, JDOMExternalizable {
     private Map<Editor, BWACEditorComponent> editorComponents;
     private BWACConfigurationForm configurationForm;
-    protected Icon BWACIcon = IconLoader.getIcon("/ch/manthos/idea/plugin/browsewordatcaret/BWACIcon.png");
+    protected Icon BWACIcon = IconLoader.getIcon("/browsewordatcaret/BWACIcon.png");
 
     public static final boolean defaultPrefShowMarkup = true;
     public static final Color defaultPrefColorMarkup = new Color(82, 109, 165);

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2005 Minas Manthos, mailto:minas@manthos.ch
  */
-package ch.manthos.idea.plugin.browsewordatcaret;
+package browsewordatcaret;
 
 import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.editor.Editor;
@@ -12,8 +12,6 @@ import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.psi.PsiDocumentManager;
-import com.intellij.psi.PsiJavaFile;
 
 import javax.swing.*;
 import java.util.ArrayList;
