@@ -15,7 +15,10 @@
     ]]></description>
     <vendor url="http://code.google.com/p/browsewordatcaret/">Minas Manthos</vendor>
     <idea-version since-build="93.13"/>
+    <depends>com.intellij.modules.lang</depends>
     <change-notes><![CDATA[
+      <u>2.3.0</u><br>
+      + Available for all IntelliJ Platform Products<br>
       <u>2.2.1</u><br>
       + Works now with all filetypes<br>
       <u>2.2.0</u><br>
