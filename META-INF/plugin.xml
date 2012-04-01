@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
-
-<idea-plugin url="http://plugins.intellij.net/plugin/?id=201">
+<idea-plugin version="2">
+    <id>BrowseWordAtCaret</id>
     <name>BrowseWordAtCaret</name>
+    <version>2.3-SNAPSHOT</version>
     <description><![CDATA[
       1. Allows to easily browse to next/previous word at caret.<br>
       2. Highlight other appearances of selected word.<br>
@@ -13,8 +13,8 @@
       - Browse with [CTRL]&[ALT]&[UP]/[DOWN] (note: on default-keymap this shortcut is also for next/previous occurrence).<br>
       - PasteReplace with [ALT]&[V].
     ]]></description>
-    <version>2.3-SNAPSHOT</version>
-    <vendor url="http://www.manthos.ch" email="minas@manthos.ch">Minas Manthos</vendor>
+    <vendor url="http://code.google.com/p/browsewordatcaret/">Minas Manthos</vendor>
+    <idea-version since-build="93.13"/>
     <change-notes><![CDATA[
       <u>2.2.1</u><br>
       + Works now with all filetypes<br>
@@ -37,7 +37,6 @@
       <u>1.0.0</u><br>
       + initial release
     ]]></change-notes>
-    <idea-version since-build="3000"/>
     <application-components>
       <component>
         <implementation-class>browsewordatcaret.BWACApplicationComponent</implementation-class>
