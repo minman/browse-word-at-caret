@@ -22,6 +22,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.IdeActions;
 
 public class BWACHandlerPasteReplace extends EditorActionHandler {
+    @Override
     public void execute(Editor editor, DataContext dataContext) {
         BWACApplicationComponent.selectWordUnderCaret(editor);
 

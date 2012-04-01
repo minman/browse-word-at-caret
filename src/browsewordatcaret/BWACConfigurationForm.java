@@ -39,6 +39,7 @@ public class BWACConfigurationForm {
         // highlightColorPanel
         highlightColorPanel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
         highlightColorPanel.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 Color color = JColorChooser.showDialog(mainPanel, "Highlight color", highlightColorPanel.getBackground());
                 if (color != null) {
@@ -49,6 +50,7 @@ public class BWACConfigurationForm {
         // markupColorPanel
         markupColorPanel.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
         markupColorPanel.addMouseListener(new MouseAdapter() {
+            @Override
             public void mouseClicked(MouseEvent mouseEvent) {
                 Color color = JColorChooser.showDialog(mainPanel, "Stripe Mark color", markupColorPanel.getBackground());
                 if (color != null) {
@@ -58,6 +60,7 @@ public class BWACConfigurationForm {
         });
         // btRestore
         btRestore.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 restoreDefaults();
             }

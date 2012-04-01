@@ -27,6 +27,7 @@ public class BWACHandlerBrowse extends EditorActionHandler {
         this.browseDirection = browseDirection;
     }
 
+    @Override
     public void execute(Editor editor, DataContext dataContext) {
         BWACApplicationComponent applicationComponent = ApplicationManager.getApplication().getComponent(BWACApplicationComponent.class);
         BWACEditorComponent editorComponent = applicationComponent.getEditorComponent(editor);

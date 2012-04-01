@@ -107,6 +107,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         return highlightText;
     }
 
+    @Override
     public void selectionChanged(SelectionEvent selectionEvent) {
         if (updating > 0) {
             return;
@@ -133,12 +134,14 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         buildHighlighters(text.substring(textRange.getStartOffset(), textRange.getEndOffset()));
     }
 
+    @Override
     public void caretPositionChanged(CaretEvent caretEvent) {
         if (updating > 0) {
             return;
         }
         if (!rangeHighlighters.isEmpty()) { // optimization
             SwingUtilities.invokeLater(new Runnable() {
+                @Override
                 public void run() {
                     // wenn der Cursor ausserhalb eines unserer RangeHighlighter kommt -> clearen...
                     if (getRangeHighlighterIndex(editor.getCaretModel().getOffset()) < 0) {
@@ -149,9 +152,11 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         }
     }
 
+    @Override
     public void beforeDocumentChange(DocumentEvent documentEvent) {
     }
 
+    @Override
     public void documentChanged(DocumentEvent documentEvent) {
         clearHighlighters();
     }

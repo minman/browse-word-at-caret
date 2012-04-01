@@ -51,10 +51,12 @@ public class BWACApplicationComponent implements ApplicationComponent, Configura
     public boolean prefSelectWord = defaultPrefSelectWord;
 
     @NonNls
+    @Override
     public String getComponentName() {
         return getClass().getSimpleName();
     }
 
+    @Override
     public void initComponent() {
         editorComponents = new HashMap<Editor, BWACEditorComponent>();
         EditorFactory.getInstance().addEditorFactoryListener(this);
@@ -62,6 +64,7 @@ public class BWACApplicationComponent implements ApplicationComponent, Configura
         // Copy
         final EditorActionHandler editorCopyHandler = EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_COPY);
         EditorActionManager.getInstance().setActionHandler(IdeActions.ACTION_EDITOR_COPY, new EditorActionHandler() {
+            @Override
             public void execute(Editor editor, DataContext dataContext) {
                 selectWordUnderCaret(editor);
                 editorCopyHandler.execute(editor, dataContext);
@@ -70,6 +73,7 @@ public class BWACApplicationComponent implements ApplicationComponent, Configura
         // Cut
         final EditorActionHandler editorCutHandler = EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_CUT);
         EditorActionManager.getInstance().setActionHandler(IdeActions.ACTION_EDITOR_CUT, new EditorActionHandler() {
+            @Override
             public void execute(Editor editor, DataContext dataContext) {
                 selectWordUnderCaret(editor);
                 editorCutHandler.execute(editor, dataContext);
@@ -85,6 +89,7 @@ public class BWACApplicationComponent implements ApplicationComponent, Configura
         }
     }
 
+    @Override
     public void disposeComponent() {
         EditorFactory.getInstance().removeEditorFactoryListener(this);
         for (BWACEditorComponent editorComponent : editorComponents.values()) {
@@ -93,6 +98,7 @@ public class BWACApplicationComponent implements ApplicationComponent, Configura
         editorComponents.clear();
     }
 
+    @Override
     public void editorCreated(EditorFactoryEvent editorFactoryEvent) {
         Editor editor = editorFactoryEvent.getEditor();
         if (editor.getProject() == null) {
@@ -102,6 +108,7 @@ public class BWACApplicationComponent implements ApplicationComponent, Configura
         editorComponents.put(editorFactoryEvent.getEditor(), editorComponent);
     }
 
+    @Override
     public void editorReleased(EditorFactoryEvent editorFactoryEvent) {
         BWACEditorComponent editorComponent = editorComponents.remove(editorFactoryEvent.getEditor());
         if (editorComponent == null) {
@@ -114,18 +121,22 @@ public class BWACApplicationComponent implements ApplicationComponent, Configura
         return editorComponents.get(editor);
     }
 
+    @Override
     public String getDisplayName() {
         return "BrowseWordAtCaret";
     }
 
+    @Override
     public Icon getIcon() {
         return null;
     }
 
+    @Override
     public String getHelpTopic() {
         return null;
     }
 
+    @Override
     public boolean isModified() {
         if (configurationForm == null) {
             return false;
@@ -133,6 +144,7 @@ public class BWACApplicationComponent implements ApplicationComponent, Configura
         return configurationForm.isModified(this);
     }
 
+    @Override
     public void apply() throws ConfigurationException {
         if (configurationForm == null) {
             return;
@@ -144,6 +156,7 @@ public class BWACApplicationComponent implements ApplicationComponent, Configura
         }
     }
 
+    @Override
     public void reset() {
         if (configurationForm == null) {
             return;
@@ -151,10 +164,12 @@ public class BWACApplicationComponent implements ApplicationComponent, Configura
         configurationForm.setData(this);
     }
 
+    @Override
     public void disposeUIResources() {
         configurationForm = null;
     }
 
+    @Override
     public JComponent createComponent() {
         if (configurationForm == null) {
             configurationForm = new BWACConfigurationForm();
@@ -171,10 +186,12 @@ public class BWACApplicationComponent implements ApplicationComponent, Configura
         return s.length == 3 ? new Color(Integer.valueOf(s[0]), Integer.valueOf(s[1]), Integer.valueOf(s[2])) : null;
     }
 
+    @Override
     public void readExternal(Element element) throws InvalidDataException {
         DefaultJDOMExternalizer.readExternal(this, element);
     }
 
+    @Override
     public void writeExternal(Element element) throws WriteExternalException {
         DefaultJDOMExternalizer.writeExternal(this, element);
     }
