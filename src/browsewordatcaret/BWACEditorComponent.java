@@ -15,21 +15,19 @@
  */
 package browsewordatcaret;
 
-import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ScrollType;
-import com.intellij.openapi.editor.markup.RangeHighlighter;
-import com.intellij.openapi.editor.markup.HighlighterTargetArea;
+import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
+import com.intellij.openapi.editor.markup.HighlighterTargetArea;
+import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.application.ApplicationManager;
 
 import javax.swing.*;
+import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.*;
-import java.text.StringCharacterIterator;
 
 public class BWACEditorComponent implements SelectionListener, CaretListener, DocumentListener {
     private Editor editor;
@@ -69,17 +67,8 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
     }
 
     public void buildHighlighters(String highlightText) {
-        // textAttribute für RangeHighlighter erstellen
-        BWACApplicationComponent applicationComponent = ApplicationManager.getApplication().getComponent(BWACApplicationComponent.class);
-        TextAttributes textAttributes = new TextAttributes();
-        if (applicationComponent.prefShowHighlight) {
-            Color color = BWACApplicationComponent.StringToColor(applicationComponent.prefColorHighlight);
-            textAttributes.setBackgroundColor(color != null ? color : BWACApplicationComponent.defaultPrefColorHighlight);
-        }
-        Color markupColor = BWACApplicationComponent.StringToColor(applicationComponent.prefColorMarkup);
-        if (markupColor == null) {
-            markupColor = BWACApplicationComponent.defaultPrefColorMarkup;
-        }
+        // textAttribute für RangeHighlighter holen
+        TextAttributes textAttributes = editor.getColorsScheme().getAttributes(BWACColorSettingsPage.BROWSEWORDATCARET);
 
         // zuerst mal aktuelle löschen
         clearHighlighters();
@@ -93,10 +82,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
             if (index >= 0 && isFullWord(text, index, highlightText.length(), true)) {
                 // RangeHighlighter erstellen
                 rangeHighlighter = editor.getMarkupModel().addRangeHighlighter(index, index + highlightText.length(), HIGHLIGHTLAYER, textAttributes, HighlighterTargetArea.EXACT_RANGE);
-                if (applicationComponent.prefShowMarkup) {
-                    rangeHighlighter.setErrorStripeMarkColor(markupColor);
-                    rangeHighlighter.setErrorStripeTooltip(highlightText);
-                }
+                rangeHighlighter.setErrorStripeTooltip(highlightText);
                 rangeHighlighters.add(rangeHighlighter);
             }
         } while (index >= 0);
@@ -194,10 +180,12 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                 int offset = rangeHighlighters.get(index).getStartOffset();
                 // Cursor setzen
                 editor.getCaretModel().moveToOffset(offset);
+                /*
                 // Wort selektieren
                 if (ApplicationManager.getApplication().getComponent(BWACApplicationComponent.class).prefSelectWord) {
                     editor.getSelectionModel().setSelection(offset, offset + highlightText.length());
                 }
+                */
                 // in sichtbaren Bereich bringen
                 editor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE);
             }

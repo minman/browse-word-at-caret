@@ -15,41 +15,23 @@
  */
 package browsewordatcaret;
 
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.actionSystem.EditorActionManager;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
-import com.intellij.openapi.editor.event.EditorFactoryListener;
+import com.intellij.openapi.editor.actionSystem.EditorActionManager;
 import com.intellij.openapi.editor.event.EditorFactoryEvent;
-import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.options.Configurable;
-import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.util.*;
+import com.intellij.openapi.editor.event.EditorFactoryListener;
 import org.jetbrains.annotations.NonNls;
-import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.awt.*;
 
-public class BWACApplicationComponent implements ApplicationComponent, Configurable, EditorFactoryListener, JDOMExternalizable {
+public class BWACApplicationComponent implements ApplicationComponent, EditorFactoryListener {
     private Map<Editor, BWACEditorComponent> editorComponents;
-    private BWACConfigurationForm configurationForm;
-
-    public static final boolean defaultPrefShowMarkup = true;
-    public static final Color defaultPrefColorMarkup = new Color(82, 109, 165);
-    public static final boolean defaultPrefShowHighlight = true;
-    public static final Color defaultPrefColorHighlight = new Color(220, 226, 237);
-    public static final boolean defaultPrefSelectWord = false;
-
-    public boolean prefShowMarkup = defaultPrefShowMarkup;
-    public String prefColorMarkup = ColorToString(defaultPrefColorMarkup);
-    public boolean prefShowHighlight = defaultPrefShowHighlight;
-    public String prefColorHighlight = ColorToString(defaultPrefColorHighlight);
-    public boolean prefSelectWord = defaultPrefSelectWord;
 
     @NonNls
     @Override
@@ -121,77 +103,5 @@ public class BWACApplicationComponent implements ApplicationComponent, Configura
 
     public BWACEditorComponent getEditorComponent(Editor editor) {
         return editorComponents.get(editor);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "BrowseWordAtCaret";
-    }
-
-    @Override
-    public Icon getIcon() {
-        return null;
-    }
-
-    @Override
-    public String getHelpTopic() {
-        return null;
-    }
-
-    @Override
-    public boolean isModified() {
-        return configurationForm != null && configurationForm.isModified(this);
-    }
-
-    @Override
-    public void apply() throws ConfigurationException {
-        if (configurationForm == null) {
-            return;
-        }
-        configurationForm.getData(this);
-        // repaint highlighters
-        for (BWACEditorComponent editorComponent : editorComponents.values()) {
-            editorComponent.repaint();
-        }
-    }
-
-    @Override
-    public void reset() {
-        if (configurationForm == null) {
-            return;
-        }
-        configurationForm.setData(this);
-    }
-
-    @Override
-    public void disposeUIResources() {
-        configurationForm = null;
-    }
-
-    @Override
-    public JComponent createComponent() {
-        if (configurationForm == null) {
-            configurationForm = new BWACConfigurationForm();
-        }
-        return (configurationForm.getMainPanel());
-    }
-
-    public static String ColorToString(Color color) {
-        return String.valueOf(color.getRed()) + "," + String.valueOf(color.getGreen()) + "," + String.valueOf(color.getBlue());
-    }
-
-    public static Color StringToColor(String str) {
-        String[] s = str.split(",");
-        return s.length == 3 ? new Color(Integer.valueOf(s[0]), Integer.valueOf(s[1]), Integer.valueOf(s[2])) : null;
-    }
-
-    @Override
-    public void readExternal(Element element) throws InvalidDataException {
-        DefaultJDOMExternalizer.readExternal(this, element);
-    }
-
-    @Override
-    public void writeExternal(Element element) throws WriteExternalException {
-        DefaultJDOMExternalizer.writeExternal(this, element);
     }
 }

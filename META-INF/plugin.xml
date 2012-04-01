@@ -19,6 +19,7 @@
     <change-notes><![CDATA[
       <u>2.3.0</u><br>
       + Available for all IntelliJ Platform Products<br>
+      + Configurable via Color Settings Page (Settings/Editor/Colors&Fonts/BrowseWordAtCaret)<br>
       <u>2.2.1</u><br>
       + Works now with all filetypes<br>
       <u>2.2.0</u><br>
@@ -45,6 +46,9 @@
         <implementation-class>browsewordatcaret.BWACApplicationComponent</implementation-class>
       </component>
     </application-components>
+    <extensions defaultExtensionNs="com.intellij">
+        <colorSettingsPage implementation="browsewordatcaret.BWACColorSettingsPage"/>
+    </extensions>
     <actions>
         <action id="BrowseWordAtCaretPlugin.Next"
                 class="browsewordatcaret.BWACActionBrowseNext"
