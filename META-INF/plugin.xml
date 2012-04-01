@@ -6,8 +6,8 @@
     <description><![CDATA[
       1. Allows to easily browse next/previous word at caret.<br>
       2. Highlight other appearances of selected word.<br>
-      3. Copy/Cut effects to word at caret (if nothing seleceted)<br>
-      4. New EditorAction 'PasteReplace' to paste and replace word at caret.<br>
+      3. Copy/Cut effects to word at caret (if nothing selected)<br>
+      4. EditorAction 'PasteReplace' to paste and replace word at caret.<br>
       <br>
       Keys:<br>
       - Browse with [CTRL]&[ALT]&[UP]/[DOWN] (note: on default-keymap this shortcut is also for next/previous occurrence).<br>
