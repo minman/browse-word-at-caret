@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
+
+<idea-plugin url="http://plugins.intellij.net/plugin/?id=201">
+    <name>BrowseWordAtCaret</name>
+    <description><![CDATA[
+      1. Allows to easily browse to next/previous word at caret.<br>
+      2. Highlight other appearances of selected word.<br>
+      3. Copy/Cut effects to word at caret (if nothing seleceted)<br>
+      4. New EditorAction 'PasteReplace' to paste and replace word at caret.<br>
+      <br>
+      Keys:<br>
+      - Browse with [CTRL]&[ALT]&[UP]/[DOWN] (note: on default-keymap this shortcut is also for next/previous occurrence).<br>
+      - PasteReplace with [ALT]&[V].
+    ]]></description>
+    <version>2.2.1</version>
+    <vendor url="http://www.manthos.ch" email="minas@manthos.ch">Minas Manthos</vendor>
+    <change-notes><![CDATA[
+      <u>2.2.1</u><br>
+      + Works now with all filetypes<br>
+      <u>2.2.0</u><br>
+      + Settings dialog added<br>
+      <u>2.1.2</u><br>
+      + minor changes<br>
+      <u>2.1.0</u><br>
+      + Copy/Cut effects to word at caret (if nothing seleceted)<br>
+      + Paste and replace word at caret<br>
+      <u>2.0.1</u><br>
+      + minor changes<br>
+      <u>2.0.0</u><br>
+      + Highlight other appearances of browsing word and selected text<br>
+      <u>1.1.0</u><br>
+      + better national language support (like german 'umlaute' etc...)<br>
+      + minor changes<br>
+      <u>1.0.1</u><br>
+      + minor changes<br>
+      <u>1.0.0</u><br>
+      + initial release
+    ]]></change-notes>
+    <idea-version since-build="3000"/>
+    <application-components>
+      <component>
+        <implementation-class>ch.manthos.idea.plugin.browsewordatcaret.BWACApplicationComponent</implementation-class>
+      </component>
+    </application-components>
+    <actions>
+        <action id="BrowseWordAtCaretPlugin.Next"
+                class="ch.manthos.idea.plugin.browsewordatcaret.BWACActionBrowseNext"
+                text="Browse to next word"
+                description="Browse to next word at caret.">
+            <keyboard-shortcut first-keystroke="control alt DOWN" keymap="$default"/>
+        </action>
+        <action id="BrowseWordAtCaretPlugin.Previous"
+                class="ch.manthos.idea.plugin.browsewordatcaret.BWACActionBrowsePrevious"
+                text="Browse to previous word"
+                description="Browse to previous word at caret.">
+            <keyboard-shortcut first-keystroke="control alt UP" keymap="$default"/>
+        </action>
+        <action id="BrowseWordAtCaretPlugin.PasteReplace"
+                class="ch.manthos.idea.plugin.browsewordatcaret.BWACActionPasteReplace"
+                text="Paste replacing word"
+                description="Paste replacing word at caret.">
+            <keyboard-shortcut first-keystroke="alt V" keymap="$default"/>
+        </action>
+    </actions>
+</idea-plugin>
