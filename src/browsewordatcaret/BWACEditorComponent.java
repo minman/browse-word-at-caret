@@ -195,7 +195,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                 // Cursor setzen
                 editor.getCaretModel().moveToOffset(offset);
                 // Wort selektieren
-                if (((BWACApplicationComponent) ApplicationManager.getApplication().getComponent(BWACApplicationComponent.class)).prefSelectWord) {
+                if (ApplicationManager.getApplication().getComponent(BWACApplicationComponent.class).prefSelectWord) {
                     editor.getSelectionModel().setSelection(offset, offset + highlightText.length());
                 }
                 // in sichtbaren Bereich bringen

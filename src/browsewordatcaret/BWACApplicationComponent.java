@@ -28,6 +28,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.util.*;
 import org.jetbrains.annotations.NonNls;
 import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.util.HashMap;
@@ -52,6 +53,7 @@ public class BWACApplicationComponent implements ApplicationComponent, Configura
 
     @NonNls
     @Override
+    @NotNull
     public String getComponentName() {
         return getClass().getSimpleName();
     }
@@ -138,10 +140,7 @@ public class BWACApplicationComponent implements ApplicationComponent, Configura
 
     @Override
     public boolean isModified() {
-        if (configurationForm == null) {
-            return false;
-        }
-        return configurationForm.isModified(this);
+        return configurationForm != null && configurationForm.isModified(this);
     }
 
     @Override
