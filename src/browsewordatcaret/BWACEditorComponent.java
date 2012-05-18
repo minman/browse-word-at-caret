@@ -67,10 +67,10 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
     }
 
     public void buildHighlighters(String highlightText) {
-        // textAttribute für RangeHighlighter holen
+        // textAttribute fÃ¼r RangeHighlighter holen
         TextAttributes textAttributes = editor.getColorsScheme().getAttributes(BWACColorSettingsPage.BROWSEWORDATCARET);
 
-        // zuerst mal aktuelle löschen
+        // zuerst mal aktuelle lÃ¶schen
         clearHighlighters();
         // text durchsuchen
         String text = editor.getDocument().getText();
@@ -101,7 +101,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
 
         // wenn ColumnMode -> gibts nicht mehr zu tun
         if (editor.isColumnMode()) {
-            clearHighlighters(); // noch löschen, da vielleicht etwas selektiert war und umgestellt wurde
+            clearHighlighters(); // noch lÃ¶schen, da vielleicht etwas selektiert war und umgestellt wurde
             return;
         }
         // Selektion wurde aufgehoben -> nichts machen -> sobald cursor ausserhalb kommt wird ge'cleared... ( siehe caretPositionChanged...)
@@ -266,9 +266,9 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
     }
 
     /**
-     * Prüfen, ob das Zeichen ein Buchstabe (und kein Trennzeichen) ist (und somit resp. dadurch ein Wort beendet ist)
+     * PrÃ¼fen, ob das Zeichen ein Buchstabe (und kein Trennzeichen) ist (und somit resp. dadurch ein Wort beendet ist)
      *
-     * @param currentChar zu prüfendes Zeichen
+     * @param currentChar zu prÃ¼fendes Zeichen
      * @return <tt>true</tt>, wenn es sich um einen Buchstaben handelt
      */
     private static boolean isWordchar(char currentChar) {
@@ -276,7 +276,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                (( currentChar >=  97 ) && (currentChar <= 122)) || // a..z
                (( currentChar ==  95 )                        ) || // _
                (( currentChar >=  48 ) && (currentChar <=  57)) || // 0..9
-               (( currentChar >= 192 ) && (currentChar <= 255) && (currentChar != 215) && (currentChar != 247))  // À..ÿ (ohne ×, ÷)
+               (( currentChar >= 192 ) && (currentChar <= 255) && (currentChar != 215) && (currentChar != 247))  // Ã€..Ã¿ (ohne Ã—, Ã·)
             ;
     }
 }
