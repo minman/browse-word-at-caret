@@ -4,51 +4,25 @@
     <name>BrowseWordAtCaret</name>
     <version>2.3-SNAPSHOT</version>
     <description><![CDATA[
-      1. Allows to easily browse next/previous word at caret.<br>
-      2. Highlight other appearances of selected word.<br>
-      3. Copy/Cut effects to word at caret (if nothing selected)<br>
-      4. EditorAction 'PasteReplace' to paste and replace word at caret.<br>
+      Allows to easily browse next/previous word at caret and highlight other appearances of selected word.<br>
       <br>
-      Keys:<br>
-      - Browse with [CTRL]&[ALT]&[UP]/[DOWN] (note: on default-keymap this shortcut is also for next/previous occurrence).<br>
-      - PasteReplace with [ALT]&[V].
+      Usage: Browse with CTRL-ALT-UP, CTRL-ALT-DOWN (note: on default-keymap this shortcut is also for next/previous occurrence).<br>
     ]]></description>
     <vendor url="http://code.google.com/p/browsewordatcaret">Minas Manthos</vendor>
     <idea-version since-build="93.13"/>
     <depends>com.intellij.modules.lang</depends>
-    <change-notes><![CDATA[
-      <u>2.3.0</u><br>
-      + Available for all IntelliJ Platform Products<br>
-      + Configurable via Color Settings Page (Settings/Editor/Colors&Fonts/BrowseWordAtCaret)<br>
-      <u>2.2.1</u><br>
-      + Works now with all filetypes<br>
-      <u>2.2.0</u><br>
-      + Settings dialog added<br>
-      <u>2.1.2</u><br>
-      + minor changes<br>
-      <u>2.1.0</u><br>
-      + Copy/Cut effects to word at caret (if nothing seleceted)<br>
-      + Paste and replace word at caret<br>
-      <u>2.0.1</u><br>
-      + minor changes<br>
-      <u>2.0.0</u><br>
-      + Highlight other appearances of browsing word and selected text<br>
-      <u>1.1.0</u><br>
-      + better national language support (like german 'umlaute' etc...)<br>
-      + minor changes<br>
-      <u>1.0.1</u><br>
-      + minor changes<br>
-      <u>1.0.0</u><br>
-      + initial release
-    ]]></change-notes>
+    <change-notes><![CDATA[See <a href="http://code.google.com/p/browsewordatcaret/wiki/ChangeNotes">change notes</a>.]]></change-notes>
+
     <application-components>
       <component>
         <implementation-class>browsewordatcaret.BWACApplicationComponent</implementation-class>
       </component>
     </application-components>
+
     <extensions defaultExtensionNs="com.intellij">
         <colorSettingsPage implementation="browsewordatcaret.BWACColorSettingsPage"/>
     </extensions>
+
     <actions>
         <action id="BrowseWordAtCaretPlugin.Next"
                 class="browsewordatcaret.BWACActionBrowseNext"
