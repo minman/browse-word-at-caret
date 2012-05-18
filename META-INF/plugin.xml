@@ -36,11 +36,5 @@
                 description="Browse to previous word at caret.">
             <keyboard-shortcut first-keystroke="control alt UP" keymap="$default"/>
         </action>
-        <action id="BrowseWordAtCaretPlugin.PasteReplace"
-                class="browsewordatcaret.BWACActionPasteReplace"
-                text="Paste replacing word"
-                description="Paste replacing word at caret.">
-            <keyboard-shortcut first-keystroke="alt V" keymap="$default"/>
-        </action>
     </actions>
 </idea-plugin>

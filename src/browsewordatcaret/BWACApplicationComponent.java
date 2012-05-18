@@ -15,13 +15,9 @@
  */
 package browsewordatcaret;
 
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.IdeActions;
 import com.intellij.openapi.components.ApplicationComponent;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
-import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
-import com.intellij.openapi.editor.actionSystem.EditorActionManager;
 import com.intellij.openapi.editor.event.EditorFactoryEvent;
 import com.intellij.openapi.editor.event.EditorFactoryListener;
 import org.jetbrains.annotations.NonNls;
@@ -44,33 +40,6 @@ public class BWACApplicationComponent implements ApplicationComponent, EditorFac
     public void initComponent() {
         editorComponents = new HashMap<Editor, BWACEditorComponent>();
         EditorFactory.getInstance().addEditorFactoryListener(this);
-
-        // Copy
-        final EditorActionHandler editorCopyHandler = EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_COPY);
-        EditorActionManager.getInstance().setActionHandler(IdeActions.ACTION_EDITOR_COPY, new EditorActionHandler() {
-            @Override
-            public void execute(Editor editor, DataContext dataContext) {
-                selectWordUnderCaret(editor);
-                editorCopyHandler.execute(editor, dataContext);
-            }
-        });
-        // Cut
-        final EditorActionHandler editorCutHandler = EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_CUT);
-        EditorActionManager.getInstance().setActionHandler(IdeActions.ACTION_EDITOR_CUT, new EditorActionHandler() {
-            @Override
-            public void execute(Editor editor, DataContext dataContext) {
-                selectWordUnderCaret(editor);
-                editorCutHandler.execute(editor, dataContext);
-            }
-        });
-        // PasteReplace -> siehe BWACHandlerPasteReplace
-    }
-
-    public static void selectWordUnderCaret(Editor editor) {
-        // wenn nichts selektiert ist -> Wort unter caret selektieren
-        if (editor.getSelectionModel().getSelectedText() == null) {
-            editor.getSelectionModel().selectWordAtCaret(false);
-        }
     }
 
     @Override
