@@ -79,7 +79,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         do {
             index = text.indexOf(highlightText, index + 1);
             // wenn gefunden und ganzes wort ->
-            if (index >= 0 && isFullWord(text, index, highlightText.length()/*, true*/)) {
+            if (index >= 0 && isFullWord(text, index, highlightText.length(), true)) {
                 // RangeHighlighter erstellen
                 rangeHighlighter = editor.getMarkupModel().addRangeHighlighter(index, index + highlightText.length(), HIGHLIGHTLAYER, textAttributes, HighlighterTargetArea.EXACT_RANGE);
                 rangeHighlighter.setErrorStripeTooltip(highlightText);
@@ -112,7 +112,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         String text = editor.getDocument().getText();
 
         TextRange textRange = selectionEvent.getNewRange();
-        if (!isFullWord(text, textRange.getStartOffset(), textRange.getLength()/*, false*/)) {
+        if (!isFullWord(text, textRange.getStartOffset(), textRange.getLength(), false)) {
             clearHighlighters();
             return;
         }
@@ -235,9 +235,10 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
      * @param text
      * @param wordStartOffset
      * @param length
+     * @param checkOnlyPrePostCharacter
      * @return <tt>true<tt>, wenn volles Wort...
      */
-    private static boolean isFullWord(final String text, final int wordStartOffset, final int length/*, final boolean checkOnlyPrePostCharacter*/) {
+    private static boolean isFullWord(final String text, final int wordStartOffset, final int length, final boolean checkOnlyPrePostCharacter) {
         // test pre-char
         if (wordStartOffset > 0) {
             if (isWordchar(text.charAt(wordStartOffset - 1)))
@@ -246,16 +247,20 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
 
         final int wordEndOffset = wordStartOffset + length;
 
-/* issue 2 -> checkOnlyPrePostCharacter ist nun immer true
         // test the range
         if (!checkOnlyPrePostCharacter) {
+            /* issue 2/3 statt alle zeichen...
             for (int i = wordStartOffset; i < wordEndOffset; i++) {
                 if (!isWordchar(text.charAt(i))) {
                     return false;
                 }
             }
+            */
+            // erstes und letztes zeichen prüfen ob isWordchar
+            if (!isWordchar(text.charAt(wordStartOffset)) || !isWordchar(text.charAt(wordEndOffset - 1))) {
+                return false;
+            }
         }
-*/
 
         // test post-char
         if (wordEndOffset < text.length()) {
