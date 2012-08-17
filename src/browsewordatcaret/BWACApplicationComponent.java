@@ -57,8 +57,8 @@ public class BWACApplicationComponent implements ApplicationComponent, EditorFac
         if (editor.getProject() == null) {
             return;
         }
-        BWACEditorComponent editorComponent = new BWACEditorComponent(editorFactoryEvent.getEditor());
-        editorComponents.put(editorFactoryEvent.getEditor(), editorComponent);
+        BWACEditorComponent editorComponent = new BWACEditorComponent(editor);
+        editorComponents.put(editor, editorComponent);
     }
 
     @Override
