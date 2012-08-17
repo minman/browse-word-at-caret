@@ -110,9 +110,9 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         }
 
         String text = editor.getDocument().getText();
-
         TextRange textRange = selectionEvent.getNewRange();
-        if (!isFullWord(text, textRange.getStartOffset(), textRange.getLength(), false)) {
+        if ((textRange.getStartOffset() == 0 && textRange.getLength() == text.length()) || // fix issue 5: bei komplettem text -> kein highlight
+                !isFullWord(text, textRange.getStartOffset(), textRange.getLength(), false)) {
             clearHighlighters();
             return;
         }
