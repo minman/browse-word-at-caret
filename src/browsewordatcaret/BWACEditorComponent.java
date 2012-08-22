@@ -18,10 +18,7 @@ package browsewordatcaret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.event.*;
-import com.intellij.openapi.editor.markup.HighlighterLayer;
-import com.intellij.openapi.editor.markup.HighlighterTargetArea;
-import com.intellij.openapi.editor.markup.RangeHighlighter;
-import com.intellij.openapi.editor.markup.TextAttributes;
+import com.intellij.openapi.editor.markup.*;
 import com.intellij.openapi.util.TextRange;
 
 import javax.swing.*;
@@ -31,16 +28,14 @@ import java.util.List;
 
 public class BWACEditorComponent implements SelectionListener, CaretListener, DocumentListener {
     private Editor editor;
-    private List<RangeHighlighter> rangeHighlighters;
-    private String highlightText;
+    private List<Item> items = new ArrayList<Item>();
+    private int highlightLength;
     private int updating;
 
     private static final int HIGHLIGHTLAYER = HighlighterLayer.SELECTION - 1; // unmittelbar unter Selektion-level
 
     public BWACEditorComponent(Editor editor) {
         this.editor = editor;
-
-        rangeHighlighters = new ArrayList<RangeHighlighter>();
 
         editor.getSelectionModel().addSelectionListener(this);
         editor.getCaretModel().addCaretListener(this);
@@ -56,41 +51,53 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
     }
 
     private void clearHighlighters() {
-        if (rangeHighlighters.isEmpty()) {
+        if (items.isEmpty()) {
             return;
         }
-        for (RangeHighlighter rangeHighlighter : rangeHighlighters) {
-            editor.getMarkupModel().removeHighlighter(rangeHighlighter);
-        }
-        rangeHighlighters.clear();
-        highlightText = null;
+        final List<Item> currentItems = new ArrayList<Item>(items);
+        items.clear();
+        final MarkupModel markupModel = editor.getMarkupModel();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                for (Item item : currentItems) {
+                    if (item.rangeHighlighter != null) {
+                        markupModel.removeHighlighter(item.rangeHighlighter);
+                    }
+                }
+            }
+        });
     }
 
-    public void buildHighlighters(String highlightText) {
-        // textAttribute für RangeHighlighter holen
-        TextAttributes textAttributes = editor.getColorsScheme().getAttributes(BWACColorSettingsPage.BROWSEWORDATCARET);
-
+    private void buildHighlighters(final String highlightText) {
         // zuerst mal aktuelle löschen
         clearHighlighters();
         // text durchsuchen
         String text = editor.getDocument().getText();
-        RangeHighlighter rangeHighlighter;
         int index = -1;
         do {
             index = text.indexOf(highlightText, index + 1);
-            // wenn gefunden und ganzes wort ->
+            // wenn gefunden und ganzes wort -> aufnehmen
             if (index >= 0 && isFullWord(text, index, highlightText.length(), true)) {
-                // RangeHighlighter erstellen
-                rangeHighlighter = editor.getMarkupModel().addRangeHighlighter(index, index + highlightText.length(), HIGHLIGHTLAYER, textAttributes, HighlighterTargetArea.EXACT_RANGE);
-                rangeHighlighter.setErrorStripeTooltip(highlightText);
-                rangeHighlighters.add(rangeHighlighter);
+                items.add(new Item(index));
             }
         } while (index >= 0);
-        this.highlightText = highlightText;
-    }
+        this.highlightLength = highlightText.length();
 
-    public String getHighlightText() {
-        return highlightText;
+        // textAttribute für RangeHighlighter holen
+        final TextAttributes textAttributes = editor.getColorsScheme().getAttributes(BWACColorSettingsPage.BROWSEWORDATCARET);
+
+        final MarkupModel markupModel = editor.getMarkupModel();
+        final List<Item> currentItems = new ArrayList<Item>(items);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                for (Item item : currentItems) {
+                    item.rangeHighlighter = markupModel.addRangeHighlighter(item.startOffset, item.startOffset + highlightText.length(), HIGHLIGHTLAYER, textAttributes, HighlighterTargetArea.EXACT_RANGE);
+                    item.rangeHighlighter.setErrorStripeTooltip(highlightText);
+                }
+            }
+        });
     }
 
     @Override
@@ -125,16 +132,9 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         if (updating > 0) {
             return;
         }
-        if (!rangeHighlighters.isEmpty()) { // optimization
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    // wenn der Cursor ausserhalb eines unserer RangeHighlighter kommt -> clearen...
-                    if (getRangeHighlighterIndex(editor.getCaretModel().getOffset()) < 0) {
-                        clearHighlighters();
-                    }
-                }
-            });
+        // wenn der Cursor ausserhalb eines unserer RangeHighlighter kommt -> clearen...
+        if (getItemIndex(editor.getCaretModel().getOffset()) < 0) {
+            clearHighlighters();
         }
     }
 
@@ -147,13 +147,11 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         clearHighlighters();
     }
 
-    public int getRangeHighlighterIndex(int offset) {
-        if (!rangeHighlighters.isEmpty()) {
-            for (int i = 0; i < rangeHighlighters.size(); i++) {
-                RangeHighlighter rangeHighlighter = rangeHighlighters.get(i);
-                if (offset >= rangeHighlighter.getStartOffset() && offset <= rangeHighlighter.getStartOffset() + highlightText.length()) {
-                    return i;
-                }
+    private int getItemIndex(int offset) {
+        for (int i = 0; i < items.size(); i++) {
+            Item item = items.get(i);
+            if (offset >= item.startOffset && offset <= item.startOffset + highlightLength) {
+                return i;
             }
         }
         return -1;
@@ -163,7 +161,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         updating++;
         try {
             // wenn noch keine RangeHighlights vorhanden ->
-            if (rangeHighlighters.isEmpty()) {
+            if (items.isEmpty()) {
                 // aktuelles Wort unter dem Cursor nehmen...
                 String text = editor.getDocument().getText();
                 int currentOffset = editor.getCaretModel().getOffset();
@@ -174,10 +172,10 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                 }
                 buildHighlighters(currentWord);
             }
-            int index = getRangeHighlighterIndex(editor.getCaretModel().getOffset()) + (BWACHandlerBrowse.BrowseDirection.NEXT.equals(browseDirection) ? 1 : -1);
+            int index = getItemIndex(editor.getCaretModel().getOffset()) + (BWACHandlerBrowse.BrowseDirection.NEXT.equals(browseDirection) ? 1 : -1);
 
-            if (index >= 0 && index < rangeHighlighters.size()) {
-                int offset = rangeHighlighters.get(index).getStartOffset();
+            if (index >= 0 && index < items.size()) {
+                int offset = items.get(index).startOffset;
                 // Cursor setzen
                 editor.getCaretModel().moveToOffset(offset);
                 /*
@@ -191,15 +189,6 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
             }
         } finally {
             updating--;
-        }
-    }
-
-    /**
-     * Repaint (-> RangeHighlighters neu erstellen)
-     */
-    public void repaint() {
-        if (getHighlightText() != null && getHighlightText().length() > 0) {
-            buildHighlighters(getHighlightText());
         }
     }
 
@@ -284,5 +273,14 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                (( currentChar >=  48 ) && (currentChar <=  57)) || // 0..9
                (( currentChar >= 192 ) && (currentChar <= 255) && (currentChar != 215) && (currentChar != 247))  // À..ÿ (ohne ×, ÷)
             ;
+    }
+
+    private static class Item {
+        private int startOffset;
+        private RangeHighlighter rangeHighlighter;
+
+        private Item(int startOffset) {
+            this.startOffset = startOffset;
+        }
     }
 }
