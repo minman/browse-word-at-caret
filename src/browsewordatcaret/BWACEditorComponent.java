@@ -15,6 +15,7 @@
  */
 package browsewordatcaret;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.event.*;
@@ -22,17 +23,20 @@ import com.intellij.openapi.editor.markup.*;
 import com.intellij.openapi.util.TextRange;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BWACEditorComponent implements SelectionListener, CaretListener, DocumentListener {
     private Editor editor;
-    private List<Item> items = new ArrayList<Item>();
-    private int highlightLength;
-    private int updating;
+    private final List<RangeHighlighter> items = new ArrayList<RangeHighlighter>();
+    private volatile int updating;
 
     private static final int HIGHLIGHTLAYER = HighlighterLayer.SELECTION - 1; // unmittelbar unter Selektion-level
+    private static final boolean AUTOHIGHLIGHT = Boolean.parseBoolean(System.getProperty("browseWordAtCaret.autoHighlight")); // experimental
+    private static final int UPDATEDELAY = 400;
 
     public BWACEditorComponent(Editor editor) {
         this.editor = editor;
@@ -43,61 +47,11 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
     }
 
     public void dispose() {
-        clearHighlighters();
+//        clearHighlighters();
         editor.getSelectionModel().removeSelectionListener(this);
         editor.getCaretModel().removeCaretListener(this);
         editor.getDocument().removeDocumentListener(this);
-        editor = null;
-    }
-
-    private void clearHighlighters() {
-        if (items.isEmpty()) {
-            return;
-        }
-        final List<Item> currentItems = new ArrayList<Item>(items);
-        items.clear();
-        final MarkupModel markupModel = editor.getMarkupModel();
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                for (Item item : currentItems) {
-                    if (item.rangeHighlighter != null) {
-                        markupModel.removeHighlighter(item.rangeHighlighter);
-                    }
-                }
-            }
-        });
-    }
-
-    private void buildHighlighters(final String highlightText) {
-        // zuerst mal aktuelle löschen
-        clearHighlighters();
-        // text durchsuchen
-        String text = editor.getDocument().getText();
-        int index = -1;
-        do {
-            index = text.indexOf(highlightText, index + 1);
-            // wenn gefunden und ganzes wort -> aufnehmen
-            if (index >= 0 && isFullWord(text, index, highlightText.length(), true)) {
-                items.add(new Item(index));
-            }
-        } while (index >= 0);
-        this.highlightLength = highlightText.length();
-
-        // textAttribute für RangeHighlighter holen
-        final TextAttributes textAttributes = editor.getColorsScheme().getAttributes(BWACColorSettingsPage.BROWSEWORDATCARET);
-
-        final MarkupModel markupModel = editor.getMarkupModel();
-        final List<Item> currentItems = new ArrayList<Item>(items);
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                for (Item item : currentItems) {
-                    item.rangeHighlighter = markupModel.addRangeHighlighter(item.startOffset, item.startOffset + highlightText.length(), HIGHLIGHTLAYER, textAttributes, HighlighterTargetArea.EXACT_RANGE);
-                    item.rangeHighlighter.setErrorStripeTooltip(highlightText);
-                }
-            }
-        });
+//        editor = null;
     }
 
     @Override
@@ -108,7 +62,12 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
 
         // wenn ColumnMode -> gibts nicht mehr zu tun
         if (editor.isColumnMode()) {
-            clearHighlighters(); // noch löschen, da vielleicht etwas selektiert war und umgestellt wurde
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    clearHighlighters(); // noch löschen, da vielleicht etwas selektiert war und umgestellt wurde
+                }
+            });
             return;
         }
         // Selektion wurde aufgehoben -> nichts machen -> sobald cursor ausserhalb kommt wird ge'cleared... ( siehe caretPositionChanged...)
@@ -120,22 +79,67 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         TextRange textRange = selectionEvent.getNewRange();
         if ((textRange.getStartOffset() == 0 && textRange.getLength() == text.length()) || // fix issue 5: bei komplettem text -> kein highlight
                 !isFullWord(text, textRange.getStartOffset(), textRange.getLength(), false)) {
-            clearHighlighters();
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    clearHighlighters();
+                }
+            });
             return;
         }
         // aufgrund selektiertem Text erstellen
-        buildHighlighters(text.substring(textRange.getStartOffset(), textRange.getEndOffset()));
+        final String highlightText = text.substring(textRange.getStartOffset(), textRange.getEndOffset());
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                buildHighlighters(highlightText);
+            }
+        });
     }
+
+    private Timer timer = new Timer(UPDATEDELAY, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            synchronized (items) {
+                int currentOffset = editor.getCaretModel().getOffset();
+                // wenn der Cursor innerhalb eines unserer RangeHighlighter kommt -> return
+                if (!items.isEmpty() && getItemIndex(currentOffset) >= 0) {
+                    return;
+                }
+
+                // aktuelles Wort unter dem Cursor nehmen...
+                final String wordToHighlight;
+                if (!editor.getSelectionModel().hasSelection() && AUTOHIGHLIGHT) {
+                    String text = editor.getDocument().getText();
+                    wordToHighlight = text.substring(getWordStartOffset(text, currentOffset), getWordEndOffset(text, currentOffset));
+                } else {
+                    wordToHighlight = null;
+                }
+
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (wordToHighlight == null || wordToHighlight.length() <= 0) {
+                            clearHighlighters();
+                        } else {
+                            buildHighlighters(wordToHighlight);
+                        }
+                    }
+                });
+            }
+        }
+    }) {
+        {
+            setRepeats(false);
+        }
+    };
 
     @Override
     public void caretPositionChanged(CaretEvent caretEvent) {
         if (updating > 0) {
             return;
         }
-        // wenn der Cursor ausserhalb eines unserer RangeHighlighter kommt -> clearen...
-        if (getItemIndex(editor.getCaretModel().getOffset()) < 0) {
-            clearHighlighters();
-        }
+        timer.restart();
     }
 
     @Override
@@ -144,52 +148,107 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
 
     @Override
     public void documentChanged(DocumentEvent documentEvent) {
-        clearHighlighters();
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                clearHighlighters();
+            }
+        });
+    }
+
+    public void browse(final BWACHandlerBrowse.BrowseDirection browseDirection) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                updating++;
+                try {
+                    synchronized (items) {
+                        // wenn noch keine RangeHighlights vorhanden ->
+                        if (items.isEmpty() || timer.isRunning()) {
+                            // aktuelles Wort unter dem Cursor nehmen...
+                            String text = editor.getDocument().getText();
+                            int currentOffset = editor.getCaretModel().getOffset();
+                            String currentWord = text.substring(getWordStartOffset(text, currentOffset), getWordEndOffset(text, currentOffset));
+
+                            if (currentWord.length() <= 0) {
+                                return;
+                            }
+                            buildHighlighters(currentWord);
+                        }
+                        int index = getItemIndex(editor.getCaretModel().getOffset()) + (BWACHandlerBrowse.BrowseDirection.NEXT.equals(browseDirection) ? 1 : -1);
+
+                        if (index >= 0 && index < items.size()) {
+                            int offset = items.get(index).getStartOffset();
+                            // Cursor setzen
+                            editor.getCaretModel().moveToOffset(offset);
+                            /*
+                            // Wort selektieren
+                            if (ApplicationManager.getApplication().getComponent(BWACApplicationComponent.class).prefSelectWord) {
+                                editor.getSelectionModel().setSelection(offset, offset + highlightText.length());
+                            }
+                            */
+                            // in sichtbaren Bereich bringen
+                            editor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE);
+                        }
+                    }
+                } finally {
+                    updating--;
+                }
+            }
+        });
     }
 
     private int getItemIndex(int offset) {
-        for (int i = 0; i < items.size(); i++) {
-            Item item = items.get(i);
-            if (offset >= item.startOffset && offset <= item.startOffset + highlightLength) {
-                return i;
+        synchronized (items) {
+            for (int i = 0; i < items.size(); i++) {
+                RangeHighlighter item = items.get(i);
+                if (offset >= item.getStartOffset() && offset <= item.getEndOffset()) {
+                    return i;
+                }
             }
         }
         return -1;
     }
 
-    public void browse(BWACHandlerBrowse.BrowseDirection browseDirection) {
-        updating++;
-        try {
-            // wenn noch keine RangeHighlights vorhanden ->
-            if (items.isEmpty()) {
-                // aktuelles Wort unter dem Cursor nehmen...
-                String text = editor.getDocument().getText();
-                int currentOffset = editor.getCaretModel().getOffset();
-                String currentWord = text.substring(getWordStartOffset(text, currentOffset), getWordEndOffset(text, currentOffset));
+    // DISPATCH THREAD METHODS
 
-                if (currentWord.length() <= 0) {
-                    return;
-                }
-                buildHighlighters(currentWord);
+    private void clearHighlighters() {
+        assertDispatchThread();
+        synchronized (items) {
+            final MarkupModel markupModel = editor.getMarkupModel();
+            for (RangeHighlighter rangeHighlighter : items) {
+                markupModel.removeHighlighter(rangeHighlighter);
             }
-            int index = getItemIndex(editor.getCaretModel().getOffset()) + (BWACHandlerBrowse.BrowseDirection.NEXT.equals(browseDirection) ? 1 : -1);
-
-            if (index >= 0 && index < items.size()) {
-                int offset = items.get(index).startOffset;
-                // Cursor setzen
-                editor.getCaretModel().moveToOffset(offset);
-                /*
-                // Wort selektieren
-                if (ApplicationManager.getApplication().getComponent(BWACApplicationComponent.class).prefSelectWord) {
-                    editor.getSelectionModel().setSelection(offset, offset + highlightText.length());
-                }
-                */
-                // in sichtbaren Bereich bringen
-                editor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE);
-            }
-        } finally {
-            updating--;
+            items.clear();
         }
+    }
+
+    private void buildHighlighters(final String highlightText) {
+        assertDispatchThread();
+        synchronized (items) {
+            // zuerst mal aktuelle löschen
+            clearHighlighters();
+            // text durchsuchen
+            String text = editor.getDocument().getText();
+            // textAttribute für RangeHighlighter holen
+            final TextAttributes textAttributes = editor.getColorsScheme().getAttributes(BWACColorSettingsPage.BROWSEWORDATCARET);
+            final MarkupModel markupModel = editor.getMarkupModel();
+
+            int index = -1;
+            do {
+                index = text.indexOf(highlightText, index + 1);
+                // wenn gefunden und ganzes wort -> aufnehmen
+                if (index >= 0 && isFullWord(text, index, highlightText.length(), true)) {
+                    RangeHighlighter rangeHighlighter = markupModel.addRangeHighlighter(index, index + highlightText.length(), HIGHLIGHTLAYER, textAttributes, HighlighterTargetArea.EXACT_RANGE);
+                    rangeHighlighter.setErrorStripeTooltip(highlightText);
+                    items.add(rangeHighlighter);
+                }
+            } while (index >= 0);
+        }
+    }
+
+    private static void assertDispatchThread() {
+      ApplicationManager.getApplication().assertIsDispatchThread();
     }
 
     /**
@@ -273,14 +332,5 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                (( currentChar >=  48 ) && (currentChar <=  57)) || // 0..9
                (( currentChar >= 192 ) && (currentChar <= 255) && (currentChar != 215) && (currentChar != 247))  // À..ÿ (ohne ×, ÷)
             ;
-    }
-
-    private static class Item {
-        private int startOffset;
-        private RangeHighlighter rangeHighlighter;
-
-        private Item(int startOffset) {
-            this.startOffset = startOffset;
-        }
     }
 }
