@@ -21,11 +21,11 @@ import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.editor.markup.*;
 import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.util.text.StringUtil;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +65,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    clearHighlighters(); // noch löschen, da vielleicht etwas selektiert war und umgestellt wurde
+                    buildHighlighters(null); // noch löschen, da vielleicht etwas selektiert war und umgestellt wurde
                 }
             });
             return;
@@ -77,18 +77,15 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
 
         String text = editor.getDocument().getText();
         TextRange textRange = selectionEvent.getNewRange();
-        if ((textRange.getStartOffset() == 0 && textRange.getLength() == text.length()) || // fix issue 5: bei komplettem text -> kein highlight
-                !isFullWord(text, textRange.getStartOffset(), textRange.getLength(), false)) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    clearHighlighters();
-                }
-            });
-            return;
-        }
+
         // aufgrund selektiertem Text erstellen
-        final String highlightText = text.substring(textRange.getStartOffset(), textRange.getEndOffset());
+        final String highlightText;
+        if ((textRange.getStartOffset() != 0 || textRange.getEndOffset() != text.length()) && // fix issue 5: komplettem text ausschliessen
+                BWACUtils.isStartEnd(text, textRange.getStartOffset(), textRange.getEndOffset(), false)) {
+            highlightText = textRange.substring(text);
+        } else {
+            highlightText = null; // ansonsten löschen
+        }
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -110,8 +107,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                 // aktuelles Wort unter dem Cursor nehmen...
                 final String wordToHighlight;
                 if (!editor.getSelectionModel().hasSelection() && AUTOHIGHLIGHT) {
-                    String text = editor.getDocument().getText();
-                    wordToHighlight = text.substring(getWordStartOffset(text, currentOffset), getWordEndOffset(text, currentOffset));
+                    wordToHighlight = BWACUtils.extractWordFrom(editor.getDocument().getText(), currentOffset);
                 } else {
                     wordToHighlight = null;
                 }
@@ -119,11 +115,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
-                        if (wordToHighlight == null || wordToHighlight.length() <= 0) {
-                            clearHighlighters();
-                        } else {
-                            buildHighlighters(wordToHighlight);
-                        }
+                        buildHighlighters(StringUtil.isEmpty(wordToHighlight) ? null : wordToHighlight);
                     }
                 });
             }
@@ -151,7 +143,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                clearHighlighters();
+                buildHighlighters(null); // bei changed -> löschen
             }
         });
     }
@@ -166,12 +158,9 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                         // wenn noch keine RangeHighlights vorhanden ->
                         if (items.isEmpty() || timer.isRunning()) {
                             // aktuelles Wort unter dem Cursor nehmen...
-                            String text = editor.getDocument().getText();
-                            int currentOffset = editor.getCaretModel().getOffset();
-                            String currentWord = text.substring(getWordStartOffset(text, currentOffset), getWordEndOffset(text, currentOffset));
-
-                            if (currentWord.length() <= 0) {
-                                return;
+                            String currentWord = BWACUtils.extractWordFrom(editor.getDocument().getText(), editor.getCaretModel().getOffset());
+                            if (currentWord != null) {
+                                return; // kein wort -> nichts zu machen
                             }
                             buildHighlighters(currentWord);
                         }
@@ -212,125 +201,33 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
 
     // DISPATCH THREAD METHODS
 
-    private void clearHighlighters() {
-        assertDispatchThread();
+    private void buildHighlighters(final String highlightText) {
+        ApplicationManager.getApplication().assertIsDispatchThread();
         synchronized (items) {
+            // aktuelle löschen
             final MarkupModel markupModel = editor.getMarkupModel();
             for (RangeHighlighter rangeHighlighter : items) {
                 markupModel.removeHighlighter(rangeHighlighter);
             }
             items.clear();
-        }
-    }
+            // und erstellen
+            if (highlightText != null) {
+                // text durchsuchen
+                String text = editor.getDocument().getText();
+                // textAttribute für RangeHighlighter holen
+                final TextAttributes textAttributes = editor.getColorsScheme().getAttributes(BWACColorSettingsPage.BROWSEWORDATCARET);
 
-    private void buildHighlighters(final String highlightText) {
-        assertDispatchThread();
-        synchronized (items) {
-            // zuerst mal aktuelle löschen
-            clearHighlighters();
-            // text durchsuchen
-            String text = editor.getDocument().getText();
-            // textAttribute für RangeHighlighter holen
-            final TextAttributes textAttributes = editor.getColorsScheme().getAttributes(BWACColorSettingsPage.BROWSEWORDATCARET);
-            final MarkupModel markupModel = editor.getMarkupModel();
-
-            int index = -1;
-            do {
-                index = text.indexOf(highlightText, index + 1);
-                // wenn gefunden und ganzes wort -> aufnehmen
-                if (index >= 0 && isFullWord(text, index, highlightText.length(), true)) {
-                    RangeHighlighter rangeHighlighter = markupModel.addRangeHighlighter(index, index + highlightText.length(), HIGHLIGHTLAYER, textAttributes, HighlighterTargetArea.EXACT_RANGE);
-                    rangeHighlighter.setErrorStripeTooltip(highlightText);
-                    items.add(rangeHighlighter);
-                }
-            } while (index >= 0);
-        }
-    }
-
-    private static void assertDispatchThread() {
-      ApplicationManager.getApplication().assertIsDispatchThread();
-    }
-
-    /**
-     * Wortanfang suchen.
-     *
-     * @param text
-     * @param currentOffset
-     * @return offset des Wortanfang
-     */
-    private static int getWordStartOffset(final String text, final int currentOffset) {
-        StringCharacterIterator sci = new StringCharacterIterator(text, currentOffset);
-        while (isWordchar(sci.previous())) {/*nothing to do here...*/}
-        return sci.getIndex()+1;
-    }
-
-    /**
-     * Wortende suchen.
-     *
-     * @param text
-     * @param currentOffset
-     * @return offset des Wortende
-     */
-    private static int getWordEndOffset(final String text, final int currentOffset) {
-        StringCharacterIterator sci = new StringCharacterIterator(text, (currentOffset > 0 ? currentOffset - 1 : 0));
-        while (isWordchar(sci.next())) {/*nothing to do here...*/}
-        return sci.getIndex();
-    }
-
-    /**
-     * Testen ob Wort an offset ein volles wort ist (so soll zB wenn 'Value' gesucht wird, dieses im Text 'getValue' nicht gefunden werden...
-     *
-     * @param text
-     * @param wordStartOffset
-     * @param length
-     * @param checkOnlyPrePostCharacter
-     * @return <tt>true<tt>, wenn volles Wort...
-     */
-    private static boolean isFullWord(final String text, final int wordStartOffset, final int length, final boolean checkOnlyPrePostCharacter) {
-        // test pre-char
-        if (wordStartOffset > 0) {
-            if (isWordchar(text.charAt(wordStartOffset - 1)))
-                return false; // vorhergehendes Zeichen ist Wortzeichen -> ist nicht volles Wort...
-        }
-
-        final int wordEndOffset = wordStartOffset + length;
-
-        // test the range
-        if (!checkOnlyPrePostCharacter) {
-            /* issue 2/3 statt alle zeichen...
-            for (int i = wordStartOffset; i < wordEndOffset; i++) {
-                if (!isWordchar(text.charAt(i))) {
-                    return false;
-                }
-            }
-            */
-            // erstes und letztes zeichen prüfen ob isWordchar
-            if (!isWordchar(text.charAt(wordStartOffset)) || !isWordchar(text.charAt(wordEndOffset - 1))) {
-                return false;
+                int index = -1;
+                do {
+                    index = text.indexOf(highlightText, index + 1);
+                    // wenn gefunden und ganzes wort -> aufnehmen
+                    if (index >= 0 && BWACUtils.isStartEnd(text, index, index + highlightText.length(), true)) {
+                        RangeHighlighter rangeHighlighter = markupModel.addRangeHighlighter(index, index + highlightText.length(), HIGHLIGHTLAYER, textAttributes, HighlighterTargetArea.EXACT_RANGE);
+                        rangeHighlighter.setErrorStripeTooltip(highlightText);
+                        items.add(rangeHighlighter);
+                    }
+                } while (index >= 0);
             }
         }
-
-        // test post-char
-        if (wordEndOffset < text.length()) {
-            if (isWordchar(text.charAt(wordEndOffset)))
-                return false; // nachfolgendes Zeichen ist Wortzeichen -> ist nicht volles Wort...
-        }
-
-        return true;
-    }
-
-    /**
-     * Prüfen, ob das Zeichen ein Buchstabe (und kein Trennzeichen) ist (und somit resp. dadurch ein Wort beendet ist)
-     *
-     * @param currentChar zu prüfendes Zeichen
-     * @return <tt>true</tt>, wenn es sich um einen Buchstaben handelt
-     */
-    private static boolean isWordchar(char currentChar) {
-        return (( currentChar >=  65 ) && (currentChar <=  90)) || // A..Z
-               (( currentChar >=  97 ) && (currentChar <= 122)) || // a..z
-               (( currentChar ==  95 )                        ) || // _
-               (( currentChar >=  48 ) && (currentChar <=  57)) || // 0..9
-               (( currentChar >= 192 ) && (currentChar <= 255) && (currentChar != 215) && (currentChar != 247))  // À..ÿ (ohne ×, ÷)
-            ;
     }
 }
