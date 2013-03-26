@@ -159,7 +159,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                         if (items.isEmpty() || timer.isRunning()) {
                             // aktuelles Wort unter dem Cursor nehmen...
                             String currentWord = BWACUtils.extractWordFrom(editor.getDocument().getText(), editor.getCaretModel().getOffset());
-                            if (currentWord != null) {
+                            if (currentWord == null) {
                                 return; // kein wort -> nichts zu machen
                             }
                             buildHighlighters(currentWord);
