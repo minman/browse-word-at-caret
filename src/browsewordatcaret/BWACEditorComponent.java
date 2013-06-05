@@ -19,7 +19,11 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.event.*;
-import com.intellij.openapi.editor.markup.*;
+import com.intellij.openapi.editor.ex.MarkupModelEx;
+import com.intellij.openapi.editor.markup.HighlighterLayer;
+import com.intellij.openapi.editor.markup.HighlighterTargetArea;
+import com.intellij.openapi.editor.markup.RangeHighlighter;
+import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
 
@@ -205,9 +209,11 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         ApplicationManager.getApplication().assertIsDispatchThread();
         synchronized (items) {
             // aktuelle löschen
-            final MarkupModel markupModel = editor.getMarkupModel();
+            final MarkupModelEx markupModel = (MarkupModelEx) editor.getMarkupModel();
             for (RangeHighlighter rangeHighlighter : items) {
-                markupModel.removeHighlighter(rangeHighlighter);
+                if (markupModel.containsHighlighter(rangeHighlighter)) {
+                    markupModel.removeHighlighter(rangeHighlighter);
+                }
             }
             items.clear();
             // und erstellen
