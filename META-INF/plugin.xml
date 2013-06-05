@@ -22,6 +22,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <colorSettingsPage implementation="browsewordatcaret.BWACColorSettingsPage"/>
+        <editorAppearanceConfigurable implementation="browsewordatcaret.BWACEditorConfigurable"/>
     </extensions>
 
     <actions>
@@ -36,6 +37,12 @@
                 text="Browse to previous word"
                 description="Browse to previous word at caret.">
             <keyboard-shortcut first-keystroke="control alt UP" keymap="$default"/>
+        </action>
+        <action id="BrowseWordAtCaretPlugin.AutoHighlight"
+                class="browsewordatcaret.BWACToggleActionAutoHighlight"
+                text="Highlight Word at Caret"
+                description="Toggle auto highlight word at caret.">
+            <add-to-group group-id="ViewMenu" anchor="after" relative-to-action="EditorToggleShowLineNumbers"/>
         </action>
     </actions>
 </idea-plugin>

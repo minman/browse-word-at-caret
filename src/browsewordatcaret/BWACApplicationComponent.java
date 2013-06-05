@@ -15,25 +15,37 @@
  */
 package browsewordatcaret;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.EditorFactoryEvent;
 import com.intellij.openapi.editor.event.EditorFactoryListener;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class BWACApplicationComponent implements ApplicationComponent, EditorFactoryListener {
+@State(name = "BWACSettings", storages = {@Storage(id = "other", file = "$APP_CONFIG$/options.xml")})
+public class BWACApplicationComponent implements ApplicationComponent, EditorFactoryListener, PersistentStateComponent<BWACApplicationComponent.BWACSettings> {
     private Map<Editor, BWACEditorComponent> editorComponents;
+    private BWACSettings settings = new BWACSettings();
+
+    @NotNull
+    public static BWACApplicationComponent getInstance() {
+        return ApplicationManager.getApplication().getComponent(BWACApplicationComponent.class);
+    }
 
     @NonNls
     @Override
     @NotNull
     public String getComponentName() {
-        return getClass().getSimpleName();
+        return "BWACApplicationComponent";
     }
 
     @Override
@@ -57,7 +69,7 @@ public class BWACApplicationComponent implements ApplicationComponent, EditorFac
         if (editor.getProject() == null) {
             return;
         }
-        BWACEditorComponent editorComponent = new BWACEditorComponent(editor);
+        BWACEditorComponent editorComponent = new BWACEditorComponent(editor, settings.autoHighlight);
         editorComponents.put(editor, editorComponent);
     }
 
@@ -70,7 +82,33 @@ public class BWACApplicationComponent implements ApplicationComponent, EditorFac
         editorComponent.dispose();
     }
 
-    public BWACEditorComponent getEditorComponent(Editor editor) {
+    @Nullable
+    public BWACEditorComponent getEditorComponent(@Nullable Editor editor) {
         return editorComponents.get(editor);
+    }
+
+    public boolean isAutoHighlight() {
+        return settings.autoHighlight;
+    }
+
+    public void setAutoHighlight(boolean autoHighlight) {
+        settings.autoHighlight = autoHighlight;
+        for (BWACEditorComponent editorComponent : editorComponents.values()) {
+            editorComponent.setAutoHighlight(autoHighlight);
+        }
+    }
+
+    @Override
+    public BWACSettings getState() {
+        return settings;
+    }
+
+    @Override
+    public void loadState(BWACSettings state) {
+        this.settings = state;
+    }
+
+    public static class BWACSettings {
+        public boolean autoHighlight;
     }
 }

@@ -37,13 +37,14 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
     private Editor editor;
     private final List<RangeHighlighter> items = new ArrayList<RangeHighlighter>();
     private volatile int updating;
+    private boolean autoHighlight;
 
     private static final int HIGHLIGHTLAYER = HighlighterLayer.SELECTION - 1; // unmittelbar unter Selektion-level
-    private static final boolean AUTOHIGHLIGHT = Boolean.parseBoolean(System.getProperty("browseWordAtCaret.autoHighlight")); // experimental
     private static final int UPDATEDELAY = 400;
 
-    public BWACEditorComponent(Editor editor) {
+    public BWACEditorComponent(Editor editor, boolean autoHighlight) {
         this.editor = editor;
+        this.autoHighlight = autoHighlight;
 
         editor.getSelectionModel().addSelectionListener(this);
         editor.getCaretModel().addCaretListener(this);
@@ -98,7 +99,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         });
     }
 
-    private Timer timer = new Timer(UPDATEDELAY, new ActionListener() {
+    private Timer caretChangedDelayTimer = new Timer(UPDATEDELAY, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
             synchronized (items) {
@@ -107,21 +108,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                 if (!items.isEmpty() && getItemIndex(currentOffset) >= 0) {
                     return;
                 }
-
-                // aktuelles Wort unter dem Cursor nehmen...
-                final String wordToHighlight;
-                if (!editor.getSelectionModel().hasSelection() && AUTOHIGHLIGHT) {
-                    wordToHighlight = BWACUtils.extractWordFrom(editor.getDocument().getText(), currentOffset);
-                } else {
-                    wordToHighlight = null;
-                }
-
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        buildHighlighters(StringUtil.isEmpty(wordToHighlight) ? null : wordToHighlight);
-                    }
-                });
+                performHighlight();
             }
         }
     }) {
@@ -130,12 +117,43 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         }
     };
 
+    private void performHighlight() {
+        // aktuelles Wort unter dem Cursor nehmen...
+        final String wordToHighlight;
+        if (autoHighlight && !editor.getSelectionModel().hasSelection()) {
+            int currentOffset = editor.getCaretModel().getOffset();
+            wordToHighlight = BWACUtils.extractWordFrom(editor.getDocument().getText(), currentOffset);
+        } else {
+            wordToHighlight = null;
+        }
+
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                buildHighlighters(StringUtil.isEmpty(wordToHighlight) ? null : wordToHighlight);
+            }
+        });
+    }
+
+    public boolean isAutoHighlight() {
+        return autoHighlight;
+    }
+
+    public void setAutoHighlight(boolean autoHighlight) {
+        if (this.autoHighlight != autoHighlight) {
+            this.autoHighlight = autoHighlight;
+            if (!editor.getSelectionModel().hasSelection()) {
+                performHighlight();
+            }
+        }
+    }
+
     @Override
     public void caretPositionChanged(CaretEvent caretEvent) {
         if (updating > 0) {
             return;
         }
-        timer.restart();
+        caretChangedDelayTimer.restart();
     }
 
     @Override
@@ -160,7 +178,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                 try {
                     synchronized (items) {
                         // wenn noch keine RangeHighlights vorhanden ->
-                        if (items.isEmpty() || timer.isRunning()) {
+                        if (items.isEmpty() || caretChangedDelayTimer.isRunning()) {
                             // aktuelles Wort unter dem Cursor nehmen...
                             String currentWord = BWACUtils.extractWordFrom(editor.getDocument().getText(), editor.getCaretModel().getOffset());
                             if (currentWord == null) {
