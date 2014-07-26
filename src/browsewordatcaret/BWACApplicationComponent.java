@@ -51,12 +51,11 @@ public class BWACApplicationComponent implements ApplicationComponent, EditorFac
     @Override
     public void initComponent() {
         editorComponents = new HashMap<Editor, BWACEditorComponent>();
-        EditorFactory.getInstance().addEditorFactoryListener(this);
+        EditorFactory.getInstance().addEditorFactoryListener(this, ApplicationManager.getApplication());
     }
 
     @Override
     public void disposeComponent() {
-        EditorFactory.getInstance().removeEditorFactoryListener(this);
         for (BWACEditorComponent editorComponent : editorComponents.values()) {
             editorComponent.dispose();
         }
@@ -64,7 +63,7 @@ public class BWACApplicationComponent implements ApplicationComponent, EditorFac
     }
 
     @Override
-    public void editorCreated(EditorFactoryEvent editorFactoryEvent) {
+    public void editorCreated(@NotNull EditorFactoryEvent editorFactoryEvent) {
         Editor editor = editorFactoryEvent.getEditor();
         if (editor.getProject() == null) {
             return;
@@ -74,7 +73,7 @@ public class BWACApplicationComponent implements ApplicationComponent, EditorFac
     }
 
     @Override
-    public void editorReleased(EditorFactoryEvent editorFactoryEvent) {
+    public void editorReleased(@NotNull EditorFactoryEvent editorFactoryEvent) {
         BWACEditorComponent editorComponent = editorComponents.remove(editorFactoryEvent.getEditor());
         if (editorComponent == null) {
             return;
