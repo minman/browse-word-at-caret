@@ -23,6 +23,9 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <colorSettingsPage implementation="browsewordatcaret.BWACColorSettingsPage"/>
+        <additionalTextAttributes scheme="Default" file="browsewordatcaret/colorschemes/BWACDefault.xml"/>
+        <additionalTextAttributes scheme="Darcula" file="browsewordatcaret/colorschemes/BWACDarcula.xml"/>
+
         <editorAppearanceConfigurable instance="browsewordatcaret.BWACEditorConfigurable"/>
     </extensions>
 

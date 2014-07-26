@@ -16,7 +16,6 @@
 package browsewordatcaret;
 
 import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.fileTypes.PlainSyntaxHighlighter;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.options.colors.AttributesDescriptor;
@@ -25,17 +24,11 @@ import com.intellij.openapi.options.colors.ColorSettingsPage;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class BWACColorSettingsPage implements ColorSettingsPage {
-    private static final TextAttributes DEFAULT_BROWSEWORDATCARET = new TextAttributes(null, new Color(220, 226, 237), null, null, Font.PLAIN);
-    static {
-        DEFAULT_BROWSEWORDATCARET.setErrorStripeColor(new Color(82, 109, 165));
-    }
-
-    public static final TextAttributesKey BROWSEWORDATCARET = TextAttributesKey.createTextAttributesKey("BROWSEWORDATCARET", DEFAULT_BROWSEWORDATCARET);
+    public static final TextAttributesKey BROWSEWORDATCARET = TextAttributesKey.createTextAttributesKey("BROWSEWORDATCARET");
 
     private static final AttributesDescriptor[] ATTRIBUTESDESC = {new AttributesDescriptor("BrowseWordAtCaret", BROWSEWORDATCARET)};
 
