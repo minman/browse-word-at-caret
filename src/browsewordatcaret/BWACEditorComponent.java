@@ -15,6 +15,11 @@
  */
 package browsewordatcaret;
 
+import com.intellij.codeInsight.hint.HintManager;
+import com.intellij.codeInsight.hint.HintManagerImpl;
+import com.intellij.codeInsight.hint.HintUtil;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ScrollType;
@@ -24,8 +29,13 @@ import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.HighlighterTargetArea;
 import com.intellij.openapi.editor.markup.RangeHighlighter;
 import com.intellij.openapi.editor.markup.TextAttributes;
+import com.intellij.openapi.keymap.KeymapUtil;
+import com.intellij.openapi.util.JDOMUtil;
+import com.intellij.openapi.util.Key;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.ui.LightweightHint;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -170,7 +180,9 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         });
     }
 
-    public void browse(final BWACHandlerBrowse.BrowseDirection browseDirection) {
+    private static final Key<BWACHandlerBrowse.BrowseDirection> KEY = Key.create("BWACHandlerBrowse.BrowseDirection.KEY");
+
+    public void browse(@NotNull final BWACHandlerBrowse.BrowseDirection browseDirection) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -190,16 +202,32 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
 
                         if (index >= 0 && index < items.size()) {
                             int offset = items.get(index).getStartOffset();
-                            // Cursor setzen
-                            editor.getCaretModel().moveToOffset(offset);
-                            /*
-                            // Wort selektieren
-                            if (ApplicationManager.getApplication().getComponent(BWACApplicationComponent.class).prefSelectWord) {
-                                editor.getSelectionModel().setSelection(offset, offset + highlightText.length());
+                            moveToOffset(offset);
+                        } else if (items.size() > 0) {
+                            if (editor.getUserData(KEY) == browseDirection) {
+                                // performed again -> start from top/bottom
+                                editor.putUserData(KEY, null);
+                                int offset = items.get(browseDirection == BWACHandlerBrowse.BrowseDirection.NEXT ? 0 : items.size() - 1).getStartOffset();
+                                moveToOffset(offset);
+                            } else {
+                                // top/bottom reached -> remember browse direction
+                                editor.putUserData(KEY, browseDirection);
+                                CaretListener listener = new CaretListener() {
+                                    @Override
+                                    public void caretPositionChanged(CaretEvent e) {
+                                        editor.putUserData(KEY, null);
+                                        editor.getCaretModel().removeCaretListener(this);
+                                    }
+                                };
+                                editor.getCaretModel().addCaretListener(listener);
+                                // and show hint
+                                String message = getPerformAgainMessage(browseDirection);
+                                LightweightHint hint = new LightweightHint(HintUtil.createInformationLabel(message));
+                                HintManagerImpl.getInstanceImpl().showEditorHint(hint, editor,
+                                        browseDirection == BWACHandlerBrowse.BrowseDirection.NEXT ? HintManager.UNDER : HintManager.ABOVE,
+                                        HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE | HintManager.HIDE_BY_SCROLLING,
+                                        0, false);
                             }
-                            */
-                            // in sichtbaren Bereich bringen
-                            editor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE);
                         }
                     }
                 } finally {
@@ -207,6 +235,27 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                 }
             }
         });
+    }
+
+    @NotNull
+    private String getPerformAgainMessage(@NotNull final BWACHandlerBrowse.BrowseDirection browseDirection) {
+        AnAction action = ActionManager.getInstance().getAction(browseDirection == BWACHandlerBrowse.BrowseDirection.NEXT ? "BrowseWordAtCaretPlugin.Next" : "BrowseWordAtCaretPlugin.Previous");
+        String shortcutsText = KeymapUtil.getFirstKeyboardShortcutText(action);
+        String message;
+        if (shortcutsText.length() > 0) {
+            if (browseDirection == BWACHandlerBrowse.BrowseDirection.NEXT) {
+                message = "Not found, press " + shortcutsText + " to browse from the top";
+            } else {
+                message = "Not found, press " + shortcutsText + " to browse from the bottom";
+            }
+        } else {
+            if (browseDirection == BWACHandlerBrowse.BrowseDirection.NEXT) {
+                message = "Not found, perform \"Browse to next word\" again to browse from the top";
+            } else {
+                message = "Not found, perform \"Browse to previous word\" again to browse from the bottom";
+            }
+        }
+        return JDOMUtil.escapeText(message, false, false);
     }
 
     private int getItemIndex(int offset) {
@@ -222,6 +271,20 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
     }
 
     // DISPATCH THREAD METHODS
+
+    private void moveToOffset(int offset) {
+        ApplicationManager.getApplication().assertIsDispatchThread();
+        // Cursor setzen
+        editor.getCaretModel().moveToOffset(offset);
+        /*
+        // Wort selektieren
+        if (ApplicationManager.getApplication().getComponent(BWACApplicationComponent.class).prefSelectWord) {
+            editor.getSelectionModel().setSelection(offset, offset + highlightText.length());
+        }
+        */
+        // in sichtbaren Bereich bringen
+        editor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE);
+    }
 
     private void buildHighlighters(final String highlightText) {
         ApplicationManager.getApplication().assertIsDispatchThread();
