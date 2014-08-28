@@ -17,6 +17,7 @@ package browsewordatcaret;
 
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.UnnamedConfigurable;
+import com.intellij.ui.IdeBorderFactory;
 
 import javax.swing.*;
 
@@ -29,7 +30,14 @@ public class BWACEditorConfigurable implements UnnamedConfigurable {
 
     @Override
     public JComponent createComponent() {
-        return cdAutoHighlight;
+
+        final JPanel bwacPanel = new JPanel();
+        bwacPanel.setBorder(IdeBorderFactory.createTitledBorder("Browse Word At Caret", true));
+        bwacPanel.setLayout(new BoxLayout(bwacPanel, BoxLayout.Y_AXIS));
+
+        bwacPanel.add(cdAutoHighlight);
+
+        return bwacPanel;
     }
 
     @Override
