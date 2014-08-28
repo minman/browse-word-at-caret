@@ -210,23 +210,25 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                                 int offset = items.get(browseDirection == BWACHandlerBrowse.BrowseDirection.NEXT ? 0 : items.size() - 1).getStartOffset();
                                 moveToOffset(offset);
                             } else {
-                                // top/bottom reached -> remember browse direction
-                                editor.putUserData(KEY, browseDirection);
-                                CaretListener listener = new CaretListener() {
-                                    @Override
-                                    public void caretPositionChanged(CaretEvent e) {
-                                        editor.putUserData(KEY, null);
-                                        editor.getCaretModel().removeCaretListener(this);
-                                    }
-                                };
-                                editor.getCaretModel().addCaretListener(listener);
-                                // and show hint
-                                String message = getPerformAgainMessage(browseDirection);
-                                LightweightHint hint = new LightweightHint(HintUtil.createInformationLabel(message));
-                                HintManagerImpl.getInstanceImpl().showEditorHint(hint, editor,
-                                        browseDirection == BWACHandlerBrowse.BrowseDirection.NEXT ? HintManager.UNDER : HintManager.ABOVE,
-                                        HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE | HintManager.HIDE_BY_SCROLLING,
-                                        0, false);
+                                if (BWACApplicationComponent.getInstance().isWrapAround()) {
+                                    // top/bottom reached -> remember browse direction
+                                    editor.putUserData(KEY, browseDirection);
+                                    CaretListener listener = new CaretListener() {
+                                        @Override
+                                        public void caretPositionChanged(CaretEvent e) {
+                                            editor.putUserData(KEY, null);
+                                            editor.getCaretModel().removeCaretListener(this);
+                                        }
+                                    };
+                                    editor.getCaretModel().addCaretListener(listener);
+                                    // and show hint
+                                    String message = getPerformAgainMessage(browseDirection);
+                                    LightweightHint hint = new LightweightHint(HintUtil.createInformationLabel(message));
+                                    HintManagerImpl.getInstanceImpl().showEditorHint(hint, editor,
+                                            browseDirection == BWACHandlerBrowse.BrowseDirection.NEXT ? HintManager.UNDER : HintManager.ABOVE,
+                                            HintManager.HIDE_BY_ANY_KEY | HintManager.HIDE_BY_TEXT_CHANGE | HintManager.HIDE_BY_SCROLLING,
+                                            0, false);
+                                }
                             }
                         }
                     }

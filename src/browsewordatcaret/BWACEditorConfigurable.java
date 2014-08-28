@@ -23,9 +23,11 @@ import javax.swing.*;
 
 public class BWACEditorConfigurable implements UnnamedConfigurable {
     private JCheckBox cdAutoHighlight;
+    private JCheckBox cdWrapAround;
 
     public BWACEditorConfigurable() {
         cdAutoHighlight = new JCheckBox("Highlight Word at Caret");
+        cdWrapAround = new JCheckBox("Wrap around");
     }
 
     @Override
@@ -36,23 +38,30 @@ public class BWACEditorConfigurable implements UnnamedConfigurable {
         bwacPanel.setLayout(new BoxLayout(bwacPanel, BoxLayout.Y_AXIS));
 
         bwacPanel.add(cdAutoHighlight);
+        bwacPanel.add(cdWrapAround);
 
         return bwacPanel;
     }
 
     @Override
     public boolean isModified() {
-        return BWACApplicationComponent.getInstance().isAutoHighlight() != cdAutoHighlight.isSelected();
+        BWACApplicationComponent component = BWACApplicationComponent.getInstance();
+        return component.isAutoHighlight() != cdAutoHighlight.isSelected() ||
+               component.isWrapAround() != cdWrapAround.isSelected() ;
     }
 
     @Override
     public void apply() throws ConfigurationException {
-        BWACApplicationComponent.getInstance().setAutoHighlight(cdAutoHighlight.isSelected());
+        BWACApplicationComponent component = BWACApplicationComponent.getInstance();
+        component.setAutoHighlight(cdAutoHighlight.isSelected());
+        component.setWrapAround(cdWrapAround.isSelected());
     }
 
     @Override
     public void reset() {
-        cdAutoHighlight.setSelected(BWACApplicationComponent.getInstance().isAutoHighlight());
+        BWACApplicationComponent component = BWACApplicationComponent.getInstance();
+        cdAutoHighlight.setSelected(component.isAutoHighlight());
+        cdWrapAround.setSelected(component.isWrapAround());
     }
 
     @Override
