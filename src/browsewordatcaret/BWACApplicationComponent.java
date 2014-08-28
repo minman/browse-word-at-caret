@@ -97,6 +97,14 @@ public class BWACApplicationComponent implements ApplicationComponent, EditorFac
         }
     }
 
+    public boolean isWrapAround() {
+        return settings.wrapAround;
+    }
+
+    public void setWrapAround(boolean wrapAround) {
+        settings.wrapAround = wrapAround;
+    }
+
     @Override
     public BWACSettings getState() {
         return settings;
@@ -109,5 +117,6 @@ public class BWACApplicationComponent implements ApplicationComponent, EditorFac
 
     public static class BWACSettings {
         public boolean autoHighlight;
+        public boolean wrapAround;
     }
 }

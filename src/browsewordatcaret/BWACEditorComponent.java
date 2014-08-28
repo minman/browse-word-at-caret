@@ -210,18 +210,23 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                                 int offset = items.get(browseDirection == BWACHandlerBrowse.BrowseDirection.NEXT ? 0 : items.size() - 1).getStartOffset();
                                 moveToOffset(offset);
                             } else {
-                                // top/bottom reached -> remember browse direction
-                                editor.putUserData(KEY, browseDirection);
-                                CaretListener listener = new CaretListener() {
-                                    @Override
-                                    public void caretPositionChanged(CaretEvent e) {
-                                        editor.putUserData(KEY, null);
-                                        editor.getCaretModel().removeCaretListener(this);
-                                    }
-                                };
-                                editor.getCaretModel().addCaretListener(listener);
-                                // and show hint
-                                String message = getPerformAgainMessage(browseDirection);
+                                final String message;
+                                if (BWACApplicationComponent.getInstance().isWrapAround()) {
+                                    // top/bottom reached -> remember browse direction
+                                    editor.putUserData(KEY, browseDirection);
+                                    CaretListener listener = new CaretListener() {
+                                        @Override
+                                        public void caretPositionChanged(CaretEvent e) {
+                                            editor.putUserData(KEY, null);
+                                            editor.getCaretModel().removeCaretListener(this);
+                                        }
+                                    };
+                                    editor.getCaretModel().addCaretListener(listener);
+                                    message = getPerformAgainMessage(browseDirection);
+                                } else {
+                                    message = "Not found";
+                                }
+                                // show hint
                                 LightweightHint hint = new LightweightHint(HintUtil.createInformationLabel(message));
                                 HintManagerImpl.getInstanceImpl().showEditorHint(hint, editor,
                                         browseDirection == BWACHandlerBrowse.BrowseDirection.NEXT ? HintManager.UNDER : HintManager.ABOVE,
