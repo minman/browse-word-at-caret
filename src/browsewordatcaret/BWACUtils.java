@@ -73,11 +73,6 @@ public final class BWACUtils {
      * @return <tt>true</tt>, wenn es sich um einen Buchstaben handelt
      */
     private static boolean isWordchar(char currentChar) {
-        return ((currentChar >= 65) && (currentChar <= 90)) || // A..Z
-                ((currentChar >= 97) && (currentChar <= 122)) || // a..z
-                ((currentChar == 95)) || // _
-                ((currentChar >= 48) && (currentChar <= 57)) || // 0..9
-                ((currentChar >= 192) && (currentChar <= 255) && (currentChar != 215) && (currentChar != 247))  // À..ÿ (ohne ×, ÷)
-                ;
+        return Character.isJavaIdentifierPart(currentChar);
     }
 }
