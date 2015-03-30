@@ -9,11 +9,11 @@
       <br>
       Usage: Browse with CTRL-ALT-UP, CTRL-ALT-DOWN (note: on default-keymap this shortcut is also for next/previous occurrence).<br>
     ]]></description>
-    <vendor url="http://code.google.com/p/browsewordatcaret">Minas Manthos</vendor>
+    <vendor url="https://github.com/minman/browse-word-at-caret">Minas Manthos</vendor>
     <!-- 129 -> 12.1 -->
     <idea-version since-build="129.0000"/>
     <depends>com.intellij.modules.lang</depends>
-    <change-notes><![CDATA[See <a href="http://code.google.com/p/browsewordatcaret/wiki/ChangeNotes">change notes</a>.]]></change-notes>
+    <change-notes><![CDATA[See <a href="https://github.com/minman/browse-word-at-caret/wiki/Change-Notes">change notes</a>.]]></change-notes>
 
     <application-components>
       <component>
