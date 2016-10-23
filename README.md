@@ -17,6 +17,7 @@ Browse with `CTRL-ALT-UP`, `CTRL-ALT-DOWN` (note: on default-keymap this shortcu
 ### Options ###
 
 Open `Settings|Editor|Appearance` to set options.
+Open `Settings|Editor|Colors & Fonts|BrowseWordAtCaret` to change Colors.
 
 **Highlight Word at Caret**
 
