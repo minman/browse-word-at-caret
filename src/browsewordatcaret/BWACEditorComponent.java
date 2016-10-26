@@ -96,7 +96,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         // aufgrund selektiertem Text erstellen
         final String highlightText;
         if ((textRange.getStartOffset() != 0 || textRange.getEndOffset() != text.length()) && // fix issue 5: komplettem text ausschliessen
-                BWACUtils.isStartEnd(text, textRange.getStartOffset(), textRange.getEndOffset(), false)) {
+                BWACUtils.isStartEnd(text, textRange.getStartOffset(), textRange.getEndOffset(), false, true)) {
             highlightText = textRange.substring(text);
         } else {
             highlightText = null; // ansonsten löschen
@@ -104,7 +104,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                buildHighlighters(highlightText);
+                buildHighlighters(highlightText, true);
             }
         });
     }
@@ -292,10 +292,14 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
     }
 
     private void clearHighlighters() {
-        buildHighlighters(null);
+        buildHighlighters(null, false);
     }
 
     private void buildHighlighters(final String highlightText) {
+        buildHighlighters(highlightText, false);
+    }
+
+    private void buildHighlighters(final String highlightText, boolean checkHumpBound) {
         ApplicationManager.getApplication().assertIsDispatchThread();
         synchronized (items) {
             // aktuelle löschen
@@ -317,7 +321,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                 do {
                     index = text.indexOf(highlightText, index + 1);
                     // wenn gefunden und ganzes wort -> aufnehmen
-                    if (index >= 0 && BWACUtils.isStartEnd(text, index, index + highlightText.length(), true)) {
+                    if (index >= 0 && BWACUtils.isStartEnd(text, index, index + highlightText.length(), true, checkHumpBound)) {
                         RangeHighlighter rangeHighlighter = markupModel.addRangeHighlighter(index, index + highlightText.length(), HIGHLIGHTLAYER, textAttributes, HighlighterTargetArea.EXACT_RANGE);
                         rangeHighlighter.setErrorStripeTooltip(highlightText);
                         items.add(rangeHighlighter);
