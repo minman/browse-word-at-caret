@@ -80,7 +80,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    buildHighlighters(null); // noch löschen, da vielleicht etwas selektiert war und umgestellt wurde
+                    clearHighlighters(); // noch löschen, da vielleicht etwas selektiert war und umgestellt wurde
                 }
             });
             return;
@@ -140,7 +140,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                buildHighlighters(StringUtil.isEmpty(wordToHighlight) ? null : wordToHighlight);
+                buildHighlighters(wordToHighlight);
             }
         });
     }
@@ -175,7 +175,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                buildHighlighters(null); // bei changed -> löschen
+                clearHighlighters(); // bei changed -> löschen
             }
         });
     }
@@ -291,6 +291,10 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         editor.getScrollingModel().scrollToCaret(ScrollType.MAKE_VISIBLE);
     }
 
+    private void clearHighlighters() {
+        buildHighlighters(null);
+    }
+
     private void buildHighlighters(final String highlightText) {
         ApplicationManager.getApplication().assertIsDispatchThread();
         synchronized (items) {
@@ -303,7 +307,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
             }
             items.clear();
             // und erstellen
-            if (highlightText != null) {
+            if (!StringUtil.isEmpty(highlightText)) {
                 // text durchsuchen
                 String text = editor.getDocument().getText();
                 // textAttribute für RangeHighlighter holen
