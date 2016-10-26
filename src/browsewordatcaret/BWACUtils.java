@@ -32,11 +32,11 @@ public final class BWACUtils {
             return null;
         }
         int begin = index;
-        while (begin > 0 && isWordchar(text.charAt(begin - 1))) {
+        while (begin > 0 && Character.isJavaIdentifierPart(text.charAt(begin - 1))) {
             begin--;
         }
         int end = index;
-        while (end < length && isWordchar(text.charAt(end))) {
+        while (end < length && Character.isJavaIdentifierPart(text.charAt(end))) {
             end++;
         }
         if (end <= begin || (begin == 0 && end == length) ) {
@@ -49,30 +49,24 @@ public final class BWACUtils {
      * Prüft, ob bei begin/end ein Wort beginnt und endet.
      */
     public static boolean isStartEnd(@NotNull final String text, final int begin, final int end, boolean checkOnlyPreviousNext) {
-        return isWordStart(text, begin, checkOnlyPreviousNext) && isWordEnd(text, end, checkOnlyPreviousNext);
-    }
-
-    static boolean isWordStart(@NotNull final String text, final int begin, boolean checkOnlyPrevious) {
         int length = text.length();
-        return (length > 0 && begin >= 0 && begin < length) &&
-                (begin == 0 || !isWordchar(text.charAt(begin - 1))) &&
-                (checkOnlyPrevious || isWordchar(text.charAt(begin)));
-    }
-
-    static boolean isWordEnd(@NotNull final String text, final int end, boolean checkOnlyNext) {
-        int length = text.length();
-        return (length > 0 && end > 0 && end <= length) &&
-                (end == length || !isWordchar(text.charAt(end))) &&
-                (checkOnlyNext || isWordchar(text.charAt(end - 1)));
-    }
-
-    /**
-     * Prüfen, ob das Zeichen ein Buchstabe (und kein Trennzeichen) ist (und somit resp. dadurch ein Wort beendet ist)
-     *
-     * @param currentChar zu prüfendes Zeichen
-     * @return <tt>true</tt>, wenn es sich um einen Buchstaben handelt
-     */
-    private static boolean isWordchar(char currentChar) {
-        return Character.isJavaIdentifierPart(currentChar);
+        if (length <= 0 || begin < 0 || begin >= length || length <= 0 || end <= 0 || end > length) {
+            return false;
+        }
+        // previous char
+        if (begin != 0 && Character.isJavaIdentifierPart(text.charAt(begin - 1))) {
+            return false;
+        }
+        // next char
+        if (end != length && Character.isJavaIdentifierPart(text.charAt(end))) {
+            return false;
+        }
+        // first/last char from text
+        if (!checkOnlyPreviousNext) {
+            if (!Character.isJavaIdentifierPart(text.charAt(begin)) || !Character.isJavaIdentifierPart(text.charAt(end - 1))) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -53,28 +53,34 @@ public class BWACUtilsTest {
 
     @Test
     public void testIsStartEnd() throws Exception {
-        assertFalse(BWACUtils.isWordStart("foo  bar", -1, false));
-        assertTrue(BWACUtils.isWordStart("foo  bar", 0, false));
-        assertFalse(BWACUtils.isWordStart("foo  bar", 1, false));
-        assertFalse(BWACUtils.isWordStart("foo  bar", 2, false));
-        assertFalse(BWACUtils.isWordStart("foo  bar", 3, false));
-        assertFalse(BWACUtils.isWordStart("foo  bar", 4, false));
-        assertTrue(BWACUtils.isWordStart("foo  bar", 5, false));
-        assertFalse(BWACUtils.isWordStart("foo  bar", 6, false));
-        assertFalse(BWACUtils.isWordStart("foo  bar", 7, false));
-        assertFalse(BWACUtils.isWordStart("foo  bar", 8, false));
-        assertFalse(BWACUtils.isWordStart("foo  bar", 9, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 0, 2, false));
+        assertEquals(true,  BWACUtils.isStartEnd("foo  bar baz", 0, 3, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 0, 4, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", -1, 2, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", -1, 3, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", -1, 4, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 1, 2, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 1, 3, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 1, 4, false));
 
-        assertFalse(BWACUtils.isWordEnd("foo  bar", -1, false));
-        assertFalse(BWACUtils.isWordEnd("foo  bar", 0, false));
-        assertFalse(BWACUtils.isWordEnd("foo  bar", 1, false));
-        assertFalse(BWACUtils.isWordEnd("foo  bar", 2, false));
-        assertTrue(BWACUtils.isWordEnd("foo  bar", 3, false));
-        assertFalse(BWACUtils.isWordEnd("foo  bar", 4, false));
-        assertFalse(BWACUtils.isWordEnd("foo  bar", 5, false));
-        assertFalse(BWACUtils.isWordEnd("foo  bar", 6, false));
-        assertFalse(BWACUtils.isWordEnd("foo  bar", 7, false));
-        assertTrue(BWACUtils.isWordEnd("foo  bar", 8, false));
-        assertFalse(BWACUtils.isWordEnd("foo  bar", 9, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 5, 7, false));
+        assertEquals(true,  BWACUtils.isStartEnd("foo  bar baz", 5, 8, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 5, 9, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 4, 7, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 4, 8, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 4, 9, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 6, 7, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 6, 8, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 6, 9, false));
+
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 9, 11, false));
+        assertEquals(true,  BWACUtils.isStartEnd("foo  bar baz", 9, 12, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 9, 13, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 8, 11, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 8, 12, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 8, 13, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 10, 11, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 10, 12, false));
+        assertEquals(false, BWACUtils.isStartEnd("foo  bar baz", 10, 13, false));
     }
 }
