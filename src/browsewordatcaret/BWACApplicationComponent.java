@@ -105,6 +105,14 @@ public class BWACApplicationComponent implements ApplicationComponent, EditorFac
         settings.wrapAround = wrapAround;
     }
 
+    public boolean isHumpBound() {
+        return settings.humpBound;
+    }
+
+    public void setHumpBound(boolean humpBound) {
+        settings.humpBound = humpBound;
+    }
+
     @Override
     public BWACSettings getState() {
         return settings;
@@ -118,5 +126,6 @@ public class BWACApplicationComponent implements ApplicationComponent, EditorFac
     public static class BWACSettings {
         public boolean autoHighlight;
         public boolean wrapAround;
+        public boolean humpBound;
     }
 }

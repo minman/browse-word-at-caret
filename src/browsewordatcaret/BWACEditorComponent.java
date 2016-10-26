@@ -93,10 +93,12 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         String text = editor.getDocument().getText();
         TextRange textRange = selectionEvent.getNewRange();
 
+        final boolean checkHumpBound = BWACApplicationComponent.getInstance().isHumpBound();
+
         // aufgrund selektiertem Text erstellen
         final String highlightText;
         if ((textRange.getStartOffset() != 0 || textRange.getEndOffset() != text.length()) && // fix issue 5: komplettem text ausschliessen
-                BWACUtils.isStartEnd(text, textRange.getStartOffset(), textRange.getEndOffset(), false, true)) {
+                BWACUtils.isStartEnd(text, textRange.getStartOffset(), textRange.getEndOffset(), false, checkHumpBound)) {
             highlightText = textRange.substring(text);
         } else {
             highlightText = null; // ansonsten löschen
@@ -104,7 +106,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                buildHighlighters(highlightText, true);
+                buildHighlighters(highlightText, checkHumpBound);
             }
         });
     }

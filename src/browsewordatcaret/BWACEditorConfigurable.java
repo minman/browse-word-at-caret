@@ -24,10 +24,12 @@ import javax.swing.*;
 public class BWACEditorConfigurable implements UnnamedConfigurable {
     private JCheckBox cdAutoHighlight;
     private JCheckBox cdWrapAround;
+    private JCheckBox cdHumpBound;
 
     public BWACEditorConfigurable() {
         cdAutoHighlight = new JCheckBox("Highlight Word at Caret");
         cdWrapAround = new JCheckBox("Wrap around");
+        cdHumpBound = new JCheckBox("Support \"CamelHumps\" when selecting");
     }
 
     @Override
@@ -39,6 +41,7 @@ public class BWACEditorConfigurable implements UnnamedConfigurable {
 
         bwacPanel.add(cdAutoHighlight);
         bwacPanel.add(cdWrapAround);
+        bwacPanel.add(cdHumpBound);
 
         return bwacPanel;
     }
@@ -47,7 +50,8 @@ public class BWACEditorConfigurable implements UnnamedConfigurable {
     public boolean isModified() {
         BWACApplicationComponent component = BWACApplicationComponent.getInstance();
         return component.isAutoHighlight() != cdAutoHighlight.isSelected() ||
-               component.isWrapAround() != cdWrapAround.isSelected() ;
+               component.isWrapAround() != cdWrapAround.isSelected() ||
+               component.isHumpBound() != cdHumpBound.isSelected();
     }
 
     @Override
@@ -55,6 +59,7 @@ public class BWACEditorConfigurable implements UnnamedConfigurable {
         BWACApplicationComponent component = BWACApplicationComponent.getInstance();
         component.setAutoHighlight(cdAutoHighlight.isSelected());
         component.setWrapAround(cdWrapAround.isSelected());
+        component.setHumpBound(cdHumpBound.isSelected());
     }
 
     @Override
@@ -62,6 +67,7 @@ public class BWACEditorConfigurable implements UnnamedConfigurable {
         BWACApplicationComponent component = BWACApplicationComponent.getInstance();
         cdAutoHighlight.setSelected(component.isAutoHighlight());
         cdWrapAround.setSelected(component.isWrapAround());
+        cdHumpBound.setSelected(component.isHumpBound());
     }
 
     @Override
