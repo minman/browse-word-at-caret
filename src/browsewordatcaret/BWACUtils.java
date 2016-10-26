@@ -15,6 +15,7 @@
  */
 package browsewordatcaret;
 
+import com.intellij.openapi.editor.actions.EditorActionUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -48,18 +49,22 @@ public final class BWACUtils {
     /**
      * Prüft, ob bei begin/end ein Wort beginnt und endet.
      */
-    public static boolean isStartEnd(@NotNull final String text, final int begin, final int end, boolean checkOnlyPreviousNext) {
+    public static boolean isStartEnd(@NotNull final String text, final int begin, final int end, boolean checkOnlyPreviousNext, boolean checkHumpBound) {
         int length = text.length();
         if (length <= 0 || begin < 0 || begin >= length || length <= 0 || end <= 0 || end > length) {
             return false;
         }
         // previous char
         if (begin != 0 && Character.isJavaIdentifierPart(text.charAt(begin - 1))) {
-            return false;
+            if (!checkHumpBound || !EditorActionUtil.isHumpBound(text, begin, true)) {
+                return false;
+            }
         }
         // next char
         if (end != length && Character.isJavaIdentifierPart(text.charAt(end))) {
-            return false;
+            if (!checkHumpBound || !EditorActionUtil.isHumpBound(text, end, false)) {
+                return false;
+            }
         }
         // first/last char from text
         if (!checkOnlyPreviousNext) {
