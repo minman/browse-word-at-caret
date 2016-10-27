@@ -18,8 +18,6 @@ Browse with `CTRL-ALT-UP`, `CTRL-ALT-DOWN` (note: on default-keymap this shortcu
 
 `Settings|Editor|Appearance` to set options.
 
-`Settings|Editor|Colors & Fonts|BrowseWordAtCaret` to change colors.
-
 **Highlight Word at Caret**
 
 Automatically highlight word under caret. You can also enabled/disable this option temporarily under menu `View|Highlight Word at Caret` (hint: set a shortcut to quickly enable/disable).
@@ -27,6 +25,14 @@ Automatically highlight word under caret. You can also enabled/disable this opti
 **Wrap around**
 
 At the end, browse to the first occurrence and vice versa.
+
+**Support "CamelHumps" when selecting**
+
+When selecting support and browse camel case words.
+
+### Colors ###
+
+`Settings|Editor|Colors & Fonts|BrowseWordAtCaret` to change colors.
 
 ## License ##
 
