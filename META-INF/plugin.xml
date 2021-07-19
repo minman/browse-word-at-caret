@@ -8,6 +8,8 @@
       Allows to easily browse next/previous word at caret and highlight other appearances of selected word.<br>
       <br>
       Usage: Browse with CTRL-ALT-UP, CTRL-ALT-DOWN (note: on default-keymap this shortcut is also for next/previous occurrence).<br>
+      <br>
+      For full documentation see <a href="https://github.com/minman/browse-word-at-caret/blob/master/README.md">README</a>
     ]]></description>
     <vendor url="https://github.com/minman/browse-word-at-caret">Minas Manthos</vendor>
     <!-- 202 -> 2020.2 -->
