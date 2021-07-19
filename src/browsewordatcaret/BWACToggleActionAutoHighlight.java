@@ -18,6 +18,7 @@ package browsewordatcaret;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.ToggleAction;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Editor;
 import com.sun.istack.internal.Nullable;
 
@@ -55,6 +56,6 @@ public class BWACToggleActionAutoHighlight extends ToggleAction {
 
     @Nullable
     private static BWACEditorComponent getEditorComponent(AnActionEvent e) {
-        return BWACApplicationComponent.getInstance().getEditorComponent(getEditor(e));
+        return ServiceManager.getService(BWACApplicationService.class).getEditorComponent(getEditor(e));
     }
 }

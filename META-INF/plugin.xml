@@ -10,16 +10,10 @@
       Usage: Browse with CTRL-ALT-UP, CTRL-ALT-DOWN (note: on default-keymap this shortcut is also for next/previous occurrence).<br>
     ]]></description>
     <vendor url="https://github.com/minman/browse-word-at-caret">Minas Manthos</vendor>
-    <!-- 129 -> 12.1 -->
-    <idea-version since-build="129.0000"/>
+    <!-- 202 -> 2020.2 -->
+    <idea-version since-build="202.0000"/>
     <depends>com.intellij.modules.lang</depends>
     <change-notes><![CDATA[See <a href="https://github.com/minman/browse-word-at-caret/wiki/Change-Notes">change notes</a>.]]></change-notes>
-
-    <application-components>
-      <component>
-        <implementation-class>browsewordatcaret.BWACApplicationComponent</implementation-class>
-      </component>
-    </application-components>
 
     <extensions defaultExtensionNs="com.intellij">
         <colorSettingsPage implementation="browsewordatcaret.BWACColorSettingsPage"/>
@@ -27,6 +21,7 @@
         <additionalTextAttributes scheme="Darcula" file="browsewordatcaret/colorschemes/BWACDarcula.xml"/>
 
         <editorAppearanceConfigurable instance="browsewordatcaret.BWACEditorConfigurable"/>
+        <editorFactoryListener implementation="browsewordatcaret.BWACEditorFactoryListener"/>
     </extensions>
 
     <actions>

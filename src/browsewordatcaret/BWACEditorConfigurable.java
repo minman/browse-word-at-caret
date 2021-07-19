@@ -15,6 +15,7 @@
  */
 package browsewordatcaret;
 
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.ui.IdeBorderFactory;
@@ -48,26 +49,26 @@ public class BWACEditorConfigurable implements UnnamedConfigurable {
 
     @Override
     public boolean isModified() {
-        BWACApplicationComponent component = BWACApplicationComponent.getInstance();
-        return component.isAutoHighlight() != cdAutoHighlight.isSelected() ||
-               component.isWrapAround() != cdWrapAround.isSelected() ||
-               component.isHumpBound() != cdHumpBound.isSelected();
+        BWACApplicationService.BWACSettings settings = ServiceManager.getService(BWACApplicationService.class).getState();
+        return settings.autoHighlight != cdAutoHighlight.isSelected() ||
+                settings.wrapAround != cdWrapAround.isSelected() ||
+                settings.humpBound != cdHumpBound.isSelected();
     }
 
     @Override
     public void apply() throws ConfigurationException {
-        BWACApplicationComponent component = BWACApplicationComponent.getInstance();
-        component.setAutoHighlight(cdAutoHighlight.isSelected());
-        component.setWrapAround(cdWrapAround.isSelected());
-        component.setHumpBound(cdHumpBound.isSelected());
+        BWACApplicationService.BWACSettings settings = ServiceManager.getService(BWACApplicationService.class).getState();
+        settings.autoHighlight = cdAutoHighlight.isSelected();
+        settings.wrapAround = cdWrapAround.isSelected();
+        settings.humpBound = cdHumpBound.isSelected();
     }
 
     @Override
     public void reset() {
-        BWACApplicationComponent component = BWACApplicationComponent.getInstance();
-        cdAutoHighlight.setSelected(component.isAutoHighlight());
-        cdWrapAround.setSelected(component.isWrapAround());
-        cdHumpBound.setSelected(component.isHumpBound());
+        BWACApplicationService.BWACSettings settings = ServiceManager.getService(BWACApplicationService.class).getState();
+        cdAutoHighlight.setSelected(settings.autoHighlight);
+        cdWrapAround.setSelected(settings.wrapAround);
+        cdHumpBound.setSelected(settings.humpBound);
     }
 
     @Override

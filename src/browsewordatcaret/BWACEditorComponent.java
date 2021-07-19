@@ -21,6 +21,7 @@ import com.intellij.codeInsight.hint.HintUtil;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ScrollType;
 import com.intellij.openapi.editor.event.*;
@@ -93,7 +94,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         String text = editor.getDocument().getText();
         TextRange textRange = selectionEvent.getNewRange();
 
-        final boolean checkHumpBound = BWACApplicationComponent.getInstance().isHumpBound();
+        final boolean checkHumpBound = ServiceManager.getService(BWACApplicationService.class).getState().humpBound;
 
         // aufgrund selektiertem Text erstellen
         final String highlightText;
@@ -213,7 +214,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                                 moveToOffset(offset);
                             } else {
                                 final String message;
-                                if (BWACApplicationComponent.getInstance().isWrapAround()) {
+                                if (ServiceManager.getService(BWACApplicationService.class).getState().wrapAround) {
                                     // top/bottom reached -> remember browse direction
                                     editor.putUserData(KEY, browseDirection);
                                     CaretListener listener = new CaretListener() {

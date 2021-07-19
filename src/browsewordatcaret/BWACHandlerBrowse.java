@@ -15,10 +15,13 @@
  */
 package browsewordatcaret;
 
+import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.application.ApplicationManager;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class BWACHandlerBrowse extends EditorActionHandler {
     private BrowseDirection browseDirection;
@@ -28,9 +31,8 @@ public class BWACHandlerBrowse extends EditorActionHandler {
     }
 
     @Override
-    public void execute(Editor editor, DataContext dataContext) {
-        BWACApplicationComponent applicationComponent = ApplicationManager.getApplication().getComponent(BWACApplicationComponent.class);
-        BWACEditorComponent editorComponent = applicationComponent.getEditorComponent(editor);
+    protected void doExecute(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
+        BWACEditorComponent editorComponent = ServiceManager.getService(BWACApplicationService.class).getEditorComponent(editor);
         if (editorComponent != null) {
             editorComponent.browse(browseDirection);
         }
