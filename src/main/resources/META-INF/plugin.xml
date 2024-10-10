@@ -1,5 +1,4 @@
-<!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
-<idea-plugin version="2">
+<idea-plugin>
     <id>BrowseWordAtCaret</id>
     <name>BrowseWordAtCaret</name>
     <description><![CDATA[
@@ -10,7 +9,7 @@
       For full documentation see <a href="https://github.com/minman/browse-word-at-caret/blob/master/README.md">README</a>
     ]]></description>
     <vendor url="https://github.com/minman/browse-word-at-caret">Minas Manthos</vendor>
-    <depends>com.intellij.modules.lang</depends>
+    <depends>com.intellij.modules.platform</depends>
     <change-notes><![CDATA[See <a href="https://github.com/minman/browse-word-at-caret/wiki/Change-Notes">change notes</a>.]]></change-notes>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -25,13 +24,13 @@
     <actions>
         <action id="BrowseWordAtCaretPlugin.Next"
                 class="browsewordatcaret.BWACActionBrowseNext"
-                text="Browse to next word"
+                text="Browse to Next Word"
                 description="Browse to next word at caret.">
             <keyboard-shortcut first-keystroke="control alt DOWN" keymap="$default"/>
         </action>
         <action id="BrowseWordAtCaretPlugin.Previous"
                 class="browsewordatcaret.BWACActionBrowsePrevious"
-                text="Browse to previous word"
+                text="Browse to Previous Word"
                 description="Browse to previous word at caret.">
             <keyboard-shortcut first-keystroke="control alt UP" keymap="$default"/>
         </action>

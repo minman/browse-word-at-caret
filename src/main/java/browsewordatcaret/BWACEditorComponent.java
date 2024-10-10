@@ -24,7 +24,12 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.ScrollType;
-import com.intellij.openapi.editor.event.*;
+import com.intellij.openapi.editor.event.CaretEvent;
+import com.intellij.openapi.editor.event.CaretListener;
+import com.intellij.openapi.editor.event.DocumentEvent;
+import com.intellij.openapi.editor.event.DocumentListener;
+import com.intellij.openapi.editor.event.SelectionEvent;
+import com.intellij.openapi.editor.event.SelectionListener;
 import com.intellij.openapi.editor.ex.MarkupModelEx;
 import com.intellij.openapi.editor.markup.HighlighterLayer;
 import com.intellij.openapi.editor.markup.HighlighterTargetArea;
@@ -38,15 +43,14 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.LightweightHint;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BWACEditorComponent implements SelectionListener, CaretListener, DocumentListener {
     private Editor editor;
-    private final List<RangeHighlighter> items = new ArrayList<RangeHighlighter>();
+    private final List<RangeHighlighter> items = new ArrayList<>();
     private volatile int updating;
     private boolean autoHighlight;
 
@@ -71,19 +75,15 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
     }
 
     @Override
-    public void selectionChanged(SelectionEvent selectionEvent) {
+    public void selectionChanged(@NotNull SelectionEvent selectionEvent) {
         if (updating > 0) {
             return;
         }
 
         // wenn ColumnMode -> gibts nicht mehr zu tun
         if (editor.isColumnMode()) {
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    clearHighlighters(); // noch löschen, da vielleicht etwas selektiert war und umgestellt wurde
-                }
-            });
+            // noch löschen, da vielleicht etwas selektiert war und umgestellt wurde
+            SwingUtilities.invokeLater(this::clearHighlighters);
             return;
         }
         // Selektion wurde aufgehoben -> nichts machen -> sobald cursor ausserhalb kommt wird ge'cleared... ( siehe caretPositionChanged...)
@@ -104,25 +104,17 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         } else {
             highlightText = null; // ansonsten löschen
         }
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                buildHighlighters(highlightText, checkHumpBound);
-            }
-        });
+        SwingUtilities.invokeLater(() -> buildHighlighters(highlightText, checkHumpBound));
     }
 
-    private Timer caretChangedDelayTimer = new Timer(UPDATEDELAY, new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            synchronized (items) {
-                int currentOffset = editor.getCaretModel().getOffset();
-                // wenn der Cursor innerhalb eines unserer RangeHighlighter kommt -> return
-                if (!items.isEmpty() && getItemIndex(currentOffset) >= 0) {
-                    return;
-                }
-                performHighlight();
+    private Timer caretChangedDelayTimer = new Timer(UPDATEDELAY, e -> {
+        synchronized (items) {
+            int currentOffset = editor.getCaretModel().getOffset();
+            // wenn der Cursor innerhalb eines unserer RangeHighlighter kommt -> return
+            if (!items.isEmpty() && getItemIndex(currentOffset) >= 0) {
+                return;
             }
+            performHighlight();
         }
     }) {
         {
@@ -140,12 +132,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
             wordToHighlight = null;
         }
 
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                buildHighlighters(wordToHighlight);
-            }
-        });
+        SwingUtilities.invokeLater(() -> buildHighlighters(wordToHighlight));
     }
 
     public boolean isAutoHighlight() {
@@ -162,7 +149,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
     }
 
     @Override
-    public void caretPositionChanged(CaretEvent caretEvent) {
+    public void caretPositionChanged(@NotNull CaretEvent caretEvent) {
         if (updating > 0) {
             return;
         }
@@ -170,17 +157,9 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
     }
 
     @Override
-    public void beforeDocumentChange(DocumentEvent documentEvent) {
-    }
-
-    @Override
-    public void documentChanged(DocumentEvent documentEvent) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                clearHighlighters(); // bei changed -> löschen
-            }
-        });
+    public void documentChanged(@NotNull DocumentEvent documentEvent) {
+        // bei changed -> löschen
+        SwingUtilities.invokeLater(this::clearHighlighters);
     }
 
     private static final Key<BWACHandlerBrowse.BrowseDirection> KEY = Key.create("BWACHandlerBrowse.BrowseDirection.KEY");
@@ -206,7 +185,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                         if (index >= 0 && index < items.size()) {
                             int offset = items.get(index).getStartOffset();
                             moveToOffset(offset);
-                        } else if (items.size() > 0) {
+                        } else if (!items.isEmpty()) {
                             if (editor.getUserData(KEY) == browseDirection) {
                                 // performed again -> start from top/bottom
                                 editor.putUserData(KEY, null);
@@ -219,7 +198,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                                     editor.putUserData(KEY, browseDirection);
                                     CaretListener listener = new CaretListener() {
                                         @Override
-                                        public void caretPositionChanged(CaretEvent e) {
+                                        public void caretPositionChanged(@NotNull CaretEvent e) {
                                             editor.putUserData(KEY, null);
                                             editor.getCaretModel().removeCaretListener(this);
                                         }

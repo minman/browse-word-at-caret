@@ -51,7 +51,7 @@ public final class BWACUtils {
      */
     public static boolean isStartEnd(@NotNull final String text, final int begin, final int end, boolean checkOnlyPreviousNext, boolean checkHumpBound) {
         int length = text.length();
-        if (length <= 0 || begin < 0 || begin >= length || length <= 0 || end <= 0 || end > length) {
+        if (length == 0 || begin < 0 || begin >= length || end <= 0 || end > length) {
             return false;
         }
         // previous char

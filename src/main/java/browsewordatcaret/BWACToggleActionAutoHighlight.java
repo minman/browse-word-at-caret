@@ -20,11 +20,12 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.actionSystem.ToggleAction;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Editor;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class BWACToggleActionAutoHighlight extends ToggleAction {
     @Override
-    public void update(AnActionEvent e) {
+    public void update(@NotNull AnActionEvent e) {
         if (getEditor(e) == null) {
             e.getPresentation().setEnabled(false);
             e.getPresentation().setVisible(false);
@@ -36,13 +37,13 @@ public class BWACToggleActionAutoHighlight extends ToggleAction {
     }
 
     @Override
-    public boolean isSelected(AnActionEvent e) {
+    public boolean isSelected(@NotNull AnActionEvent e) {
         BWACEditorComponent editorComponent = getEditorComponent(e);
         return editorComponent != null && editorComponent.isAutoHighlight();
     }
 
     @Override
-    public void setSelected(AnActionEvent e, boolean state) {
+    public void setSelected(@NotNull AnActionEvent e, boolean state) {
         BWACEditorComponent editorComponent = getEditorComponent(e);
         if (editorComponent != null) {
             editorComponent.setAutoHighlight(state);

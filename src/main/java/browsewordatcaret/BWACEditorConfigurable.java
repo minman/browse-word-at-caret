@@ -20,7 +20,10 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.ui.IdeBorderFactory;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 public class BWACEditorConfigurable implements UnnamedConfigurable {
     private JCheckBox cdAutoHighlight;
@@ -69,9 +72,5 @@ public class BWACEditorConfigurable implements UnnamedConfigurable {
         cdAutoHighlight.setSelected(settings.autoHighlight);
         cdWrapAround.setSelected(settings.wrapAround);
         cdHumpBound.setSelected(settings.humpBound);
-    }
-
-    @Override
-    public void disposeUIResources() {
     }
 }

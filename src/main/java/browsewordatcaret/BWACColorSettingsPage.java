@@ -23,19 +23,13 @@ import com.intellij.openapi.options.colors.ColorDescriptor;
 import com.intellij.openapi.options.colors.ColorSettingsPage;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.util.HashMap;
+import javax.swing.Icon;
 import java.util.Map;
 
 public class BWACColorSettingsPage implements ColorSettingsPage {
     public static final TextAttributesKey BROWSEWORDATCARET = TextAttributesKey.createTextAttributesKey("BROWSEWORDATCARET");
 
     private static final AttributesDescriptor[] ATTRIBUTESDESC = {new AttributesDescriptor("BrowseWordAtCaret", BROWSEWORDATCARET)};
-
-    private static final Map<String, TextAttributesKey> TAGS = new HashMap<String, TextAttributesKey>();
-    static {
-        TAGS.put("browseWordAtCaret", BROWSEWORDATCARET);
-    }
 
     @NotNull
     @Override
@@ -48,15 +42,13 @@ public class BWACColorSettingsPage implements ColorSettingsPage {
         return null;
     }
 
-    @NotNull
     @Override
-    public AttributesDescriptor[] getAttributeDescriptors() {
+    public AttributesDescriptor @NotNull [] getAttributeDescriptors() {
         return ATTRIBUTESDESC;
     }
 
-    @NotNull
     @Override
-    public ColorDescriptor[] getColorDescriptors() {
+    public ColorDescriptor @NotNull [] getColorDescriptors() {
         return ColorDescriptor.EMPTY_ARRAY;
     }
 
@@ -74,6 +66,6 @@ public class BWACColorSettingsPage implements ColorSettingsPage {
 
     @Override
     public Map<String, TextAttributesKey> getAdditionalHighlightingTagToDescriptorMap() {
-        return TAGS;
+        return Map.of("browseWordAtCaret", BROWSEWORDATCARET);
     }
 }

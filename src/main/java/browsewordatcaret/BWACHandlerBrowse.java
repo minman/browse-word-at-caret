@@ -15,11 +15,11 @@
  */
 package browsewordatcaret;
 
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Caret;
-import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,7 +38,7 @@ public class BWACHandlerBrowse extends EditorActionHandler {
         }
     }
 
-    public static enum BrowseDirection {
+    public enum BrowseDirection {
         NEXT, PREVIOUS
     }
 }
