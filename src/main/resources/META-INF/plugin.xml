@@ -2,8 +2,6 @@
 <idea-plugin version="2">
     <id>BrowseWordAtCaret</id>
     <name>BrowseWordAtCaret</name>
-<!--    <version>3.0.5</version>-->
-    <version>3.0-SNAPSHOT</version>
     <description><![CDATA[
       Allows to easily browse next/previous word at caret and highlight other appearances of selected word.<br>
       <br>
@@ -12,8 +10,6 @@
       For full documentation see <a href="https://github.com/minman/browse-word-at-caret/blob/master/README.md">README</a>
     ]]></description>
     <vendor url="https://github.com/minman/browse-word-at-caret">Minas Manthos</vendor>
-    <!-- 202 -> 2020.2 -->
-    <idea-version since-build="202.0000"/>
     <depends>com.intellij.modules.lang</depends>
     <change-notes><![CDATA[See <a href="https://github.com/minman/browse-word-at-caret/wiki/Change-Notes">change notes</a>.]]></change-notes>
 
