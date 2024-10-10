@@ -16,7 +16,6 @@
 package browsewordatcaret;
 
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Caret;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler;
@@ -32,7 +31,7 @@ public class BWACHandlerBrowse extends EditorActionHandler {
 
     @Override
     protected void doExecute(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
-        BWACEditorComponent editorComponent = ServiceManager.getService(BWACApplicationService.class).getEditorComponent(editor);
+        BWACEditorComponent editorComponent = BWACApplicationService.getService().getEditorComponent(editor);
         if (editorComponent != null) {
             editorComponent.browse(browseDirection);
         }

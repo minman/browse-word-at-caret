@@ -15,7 +15,6 @@
  */
 package browsewordatcaret;
 
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.ui.IdeBorderFactory;
@@ -52,7 +51,7 @@ public class BWACEditorConfigurable implements UnnamedConfigurable {
 
     @Override
     public boolean isModified() {
-        BWACApplicationService.BWACSettings settings = ServiceManager.getService(BWACApplicationService.class).getState();
+        BWACApplicationService.BWACSettings settings = BWACApplicationService.getService().getState();
         return settings.autoHighlight != cdAutoHighlight.isSelected() ||
                 settings.wrapAround != cdWrapAround.isSelected() ||
                 settings.humpBound != cdHumpBound.isSelected();
@@ -60,7 +59,7 @@ public class BWACEditorConfigurable implements UnnamedConfigurable {
 
     @Override
     public void apply() throws ConfigurationException {
-        BWACApplicationService.BWACSettings settings = ServiceManager.getService(BWACApplicationService.class).getState();
+        BWACApplicationService.BWACSettings settings = BWACApplicationService.getService().getState();
         settings.autoHighlight = cdAutoHighlight.isSelected();
         settings.wrapAround = cdWrapAround.isSelected();
         settings.humpBound = cdHumpBound.isSelected();
@@ -68,7 +67,7 @@ public class BWACEditorConfigurable implements UnnamedConfigurable {
 
     @Override
     public void reset() {
-        BWACApplicationService.BWACSettings settings = ServiceManager.getService(BWACApplicationService.class).getState();
+        BWACApplicationService.BWACSettings settings = BWACApplicationService.getService().getState();
         cdAutoHighlight.setSelected(settings.autoHighlight);
         cdWrapAround.setSelected(settings.wrapAround);
         cdHumpBound.setSelected(settings.humpBound);

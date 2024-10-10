@@ -16,6 +16,7 @@
 package browsewordatcaret;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.RoamingType;
 import com.intellij.openapi.components.Service;
@@ -33,6 +34,11 @@ import java.util.Map;
 public final class BWACApplicationService implements PersistentStateComponent<BWACApplicationService.BWACSettings>, Disposable {
     private Map<Editor, BWACEditorComponent> editorComponents = new HashMap<>();
     private BWACSettings settings = new BWACSettings();
+
+    @NotNull
+    public static BWACApplicationService getService() {
+        return ApplicationManager.getApplication().getService(BWACApplicationService.class);
+    }
 
     @Nullable
     public BWACEditorComponent getEditorComponent(@Nullable Editor editor) {
