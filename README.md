@@ -16,7 +16,7 @@ Browse with `CTRL-ALT-UP`, `CTRL-ALT-DOWN` (note: on default-keymap this shortcu
 
 ### Options ###
 
-`Settings|Editor|Appearance` to set options.
+`Settings|Editor|General|Appearance` to set options.
 
 **Highlight Word at Caret**
 
@@ -32,7 +32,7 @@ When selecting support and browse camel case words.
 
 ### Colors ###
 
-`Settings|Editor|Colors & Fonts|BrowseWordAtCaret` to change colors.
+`Settings|Editor|Color Scheme|BrowseWordAtCaret` to change colors.
 
 ## License ##
 
