@@ -42,7 +42,6 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.LightweightHint;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +81,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         // wenn ColumnMode -> gibts nicht mehr zu tun
         if (editor.isColumnMode()) {
             // noch löschen, da vielleicht etwas selektiert war und umgestellt wurde
-            SwingUtilities.invokeLater(this::clearHighlighters);
+            ApplicationManager.getApplication().invokeLater(this::clearHighlighters);
             return;
         }
         // Selektion wurde aufgehoben -> nichts machen -> sobald cursor ausserhalb kommt wird ge'cleared... ( siehe caretPositionChanged...)
@@ -103,18 +102,20 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         } else {
             highlightText = null; // ansonsten löschen
         }
-        SwingUtilities.invokeLater(() -> buildHighlighters(highlightText, checkHumpBound));
+        ApplicationManager.getApplication().invokeLater(() -> buildHighlighters(highlightText, checkHumpBound));
     }
 
     private Timer caretChangedDelayTimer = new Timer(UPDATEDELAY, e -> {
-        synchronized (items) {
-            int currentOffset = editor.getCaretModel().getOffset();
-            // wenn der Cursor innerhalb eines unserer RangeHighlighter kommt -> return
-            if (!items.isEmpty() && getItemIndex(currentOffset) >= 0) {
-                return;
+        ApplicationManager.getApplication().invokeLater(() -> {
+            synchronized (items) {
+                int currentOffset = editor.getCaretModel().getOffset();
+                // wenn der Cursor innerhalb eines unserer RangeHighlighter kommt -> return
+                if (!items.isEmpty() && getItemIndex(currentOffset) >= 0) {
+                    return;
+                }
+                performHighlight();
             }
-            performHighlight();
-        }
+        });
     }) {
         {
             setRepeats(false);
@@ -131,7 +132,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
             wordToHighlight = null;
         }
 
-        SwingUtilities.invokeLater(() -> buildHighlighters(wordToHighlight));
+        ApplicationManager.getApplication().invokeLater(() -> buildHighlighters(wordToHighlight));
     }
 
     public boolean isAutoHighlight() {
@@ -158,13 +159,13 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
     @Override
     public void documentChanged(@NotNull DocumentEvent documentEvent) {
         // bei changed -> löschen
-        SwingUtilities.invokeLater(this::clearHighlighters);
+        ApplicationManager.getApplication().invokeLater(this::clearHighlighters);
     }
 
     private static final Key<BWACHandlerBrowse.BrowseDirection> KEY = Key.create("BWACHandlerBrowse.BrowseDirection.KEY");
 
     public void browse(@NotNull final BWACHandlerBrowse.BrowseDirection browseDirection) {
-        SwingUtilities.invokeLater(new Runnable() {
+        ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
                 updating++;
