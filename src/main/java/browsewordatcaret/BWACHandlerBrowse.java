@@ -31,7 +31,7 @@ public class BWACHandlerBrowse extends EditorActionHandler {
 
     @Override
     protected void doExecute(@NotNull Editor editor, @Nullable Caret caret, DataContext dataContext) {
-        BWACEditorComponent editorComponent = BWACApplicationService.getService().getEditorComponent(editor);
+        BWACEditorComponent editorComponent = BWACEditorComponent.getInstance(editor);
         if (editorComponent != null) {
             editorComponent.browse(browseDirection);
         }

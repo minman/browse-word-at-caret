@@ -62,6 +62,6 @@ public class BWACToggleActionAutoHighlight extends ToggleAction {
 
     @Nullable
     private static BWACEditorComponent getEditorComponent(AnActionEvent e) {
-        return BWACApplicationService.getService().getEditorComponent(getEditor(e));
+        return BWACEditorComponent.getInstance(getEditor(e));
     }
 }

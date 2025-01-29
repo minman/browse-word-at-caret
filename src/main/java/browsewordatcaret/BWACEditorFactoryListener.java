@@ -15,18 +15,30 @@
  */
 package browsewordatcaret;
 
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.EditorFactoryEvent;
 import com.intellij.openapi.editor.event.EditorFactoryListener;
 import org.jetbrains.annotations.NotNull;
 
 public class BWACEditorFactoryListener implements EditorFactoryListener {
+
     @Override
     public void editorCreated(@NotNull EditorFactoryEvent event) {
-        BWACApplicationService.getService().editorCreated(event.getEditor());
+        Editor editor = event.getEditor();
+        if (editor.getProject() == null) {
+            return;
+        }
+        BWACEditorComponent editorComponent = new BWACEditorComponent(editor, BWACApplicationService.getService().getState().autoHighlight);
+        editor.putUserData(BWACEditorComponent.EDITOR_COMPONENT_KEY, editorComponent);
     }
 
     @Override
     public void editorReleased(@NotNull EditorFactoryEvent event) {
-        BWACApplicationService.getService().editorReleased(event.getEditor());
+        Editor editor = event.getEditor();
+        BWACEditorComponent userData = editor.getUserData(BWACEditorComponent.EDITOR_COMPONENT_KEY);
+        if (userData != null) {
+            editor.putUserData(BWACEditorComponent.EDITOR_COMPONENT_KEY, null);
+            userData.dispose();
+        }
     }
 }

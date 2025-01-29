@@ -41,6 +41,7 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.LightweightHint;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Timer;
 import java.util.ArrayList;
@@ -54,6 +55,13 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
 
     private static final int HIGHLIGHTLAYER = HighlighterLayer.SELECTION - 1; // unmittelbar unter Selektion-level
     private static final int UPDATEDELAY = 400;
+
+    public static final Key<BWACEditorComponent> EDITOR_COMPONENT_KEY = Key.create("BrowseWordAtCaretEditorComponent");
+
+    @Nullable
+    public static BWACEditorComponent getInstance(@Nullable Editor editor) {
+        return editor != null ? editor.getUserData(EDITOR_COMPONENT_KEY) : null;
+    }
 
     public BWACEditorComponent(Editor editor, boolean autoHighlight) {
         this.editor = editor;

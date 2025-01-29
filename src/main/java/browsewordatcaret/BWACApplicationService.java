@@ -15,58 +15,22 @@
  */
 package browsewordatcaret;
 
-import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.RoamingType;
 import com.intellij.openapi.components.Service;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.editor.Editor;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 @State(name = "BWACSettings", storages = {@Storage(value = "$APP_CONFIG$/options.xml", roamingType = RoamingType.DISABLED)})
-public final class BWACApplicationService implements PersistentStateComponent<BWACApplicationService.BWACSettings>, Disposable {
-    private Map<Editor, BWACEditorComponent> editorComponents = new HashMap<>();
+public final class BWACApplicationService implements PersistentStateComponent<BWACApplicationService.BWACSettings> {
     private BWACSettings settings = new BWACSettings();
 
     @NotNull
     public static BWACApplicationService getService() {
         return ApplicationManager.getApplication().getService(BWACApplicationService.class);
-    }
-
-    @Nullable
-    public BWACEditorComponent getEditorComponent(@Nullable Editor editor) {
-        return editorComponents.get(editor);
-    }
-
-    @Override
-    public void dispose() {
-        for (BWACEditorComponent editorComponent : editorComponents.values()) {
-            editorComponent.dispose();
-        }
-        editorComponents.clear();
-    }
-
-    void editorCreated(@NotNull Editor editor) {
-        if (editor.getProject() == null) {
-            return;
-        }
-        BWACEditorComponent editorComponent = new BWACEditorComponent(editor, settings.autoHighlight);
-        editorComponents.put(editor, editorComponent);
-    }
-
-    void editorReleased(@NotNull Editor editor) {
-        BWACEditorComponent editorComponent = editorComponents.remove(editor);
-        if (editorComponent == null) {
-            return;
-        }
-        editorComponent.dispose();
     }
 
     @NotNull
