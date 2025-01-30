@@ -46,11 +46,12 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Timer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class BWACEditorComponent implements SelectionListener, CaretListener, DocumentListener {
     private Editor editor;
     private final List<RangeHighlighter> items = new ArrayList<>();
-    private volatile int updating;
+    private AtomicInteger updating = new AtomicInteger(0);
     private boolean autoHighlight;
 
     private static final int HIGHLIGHTLAYER = HighlighterLayer.SELECTION - 1; // unmittelbar unter Selektion-level
@@ -82,7 +83,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
 
     @Override
     public void selectionChanged(@NotNull SelectionEvent selectionEvent) {
-        if (updating > 0) {
+        if (updating.get() > 0) {
             return;
         }
 
@@ -158,7 +159,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
 
     @Override
     public void caretPositionChanged(@NotNull CaretEvent caretEvent) {
-        if (updating > 0) {
+        if (updating.get() > 0) {
             return;
         }
         caretChangedDelayTimer.restart();
@@ -176,7 +177,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
         ApplicationManager.getApplication().invokeLater(new Runnable() {
             @Override
             public void run() {
-                updating++;
+                updating.incrementAndGet();
                 try {
                     synchronized (items) {
                         // wenn noch keine RangeHighlights vorhanden ->
@@ -226,7 +227,7 @@ public class BWACEditorComponent implements SelectionListener, CaretListener, Do
                         }
                     }
                 } finally {
-                    updating--;
+                    updating.decrementAndGet();
                 }
             }
         });
